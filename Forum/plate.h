@@ -5,18 +5,19 @@
 #include<QPushButton>
 #include<QMetaObject>
 
+
 class Plate : public QPushButton
 {
     Q_OBJECT
 public:
-    Plate(QWidget *parent, int id, string title);
-    inline string get_title(){return title;}
-    inline int get_id(){return id;}
+    PostGroup *postgroup;
+    Plate(QWidget *parent, int id, QString title);
+    Q_INVOKABLE QString get_title(){return title;}
+    Q_INVOKABLE int get_id(){return id;}
 
 private:
     int id;
-    string title;
-    vector<Post>posts;
+    QString title;
 
 signals:
 

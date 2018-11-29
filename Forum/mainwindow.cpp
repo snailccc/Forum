@@ -17,6 +17,7 @@ MainWindow::MainWindow(QWidget *parent) :
     Initial_Action();
     Initial_Background();
 
+    view = new QQuickView();
 }
 
 void MainWindow::Initial_Background()
@@ -45,7 +46,22 @@ void MainWindow::Initial_Action()
 void MainWindow::Create_Plate_View()
 {
     Plate *plate = qobject_cast<Plate *>(sender());
-    cout<<plate->get_id()<<endl;
+    int id = plate->get_id();
+    QString title = plate->get_title();
+
+    this->view->setTitle(title);
+    QQmlContext *engine_plate = this->view->rootContext();
+    engine_plate->setContextProperty("plate_c",plate);
+
+    QQmlContext *engine_post = this->view->rootContext();
+    plate->postgroup->AddPost(Post(100001,"test_post100001","I'm test the post 100001"));
+    plate->postgroup->AddPost(Post(100002,"test_post100002","I'm test the post 100002"));
+    engine_post->setContextProperty("postgroup", plate->postgroup);
+
+    this->view->setSource(QUrl("qrc:/qml/qml/Plate.qml"));
+    view->resize(800,600);
+    view->show();
+
 }
 
 

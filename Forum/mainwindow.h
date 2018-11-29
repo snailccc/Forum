@@ -3,6 +3,7 @@
 
 #include "plate.h"
 #include "header.h"
+#include "user.h"
 
 #include<QMainWindow>
 #include<QGridLayout>
@@ -10,6 +11,13 @@
 #include<QWidget>
 #include<QToolBar>
 #include<QAction>
+#include<QQuickView>
+#include<QApplication>
+#include<QUrl>
+#include<QQmlContext>
+#include<QVariant>
+#include<QQmlContext>
+#include<QQmlApplicationEngine>
 
 namespace Ui {
 class MainWindow;
@@ -19,12 +27,17 @@ class MainWindow : public QMainWindow
 {
     Q_OBJECT
 private:
+
     QGridLayout *layout;
     vector <Plate*> plates;
     QWidget *background;
     QToolBar *toolbar;
     QAction *switch_account,*exit,*get_info;
     Ui::MainWindow *ui;
+    QQuickView *view;
+    QQmlApplicationEngine *view1;
+    User *user;
+
 
 public:
     explicit MainWindow(QWidget *parent = 0);

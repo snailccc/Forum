@@ -6,6 +6,8 @@
 
 QT       += core gui
 QT       += xml
+QT       += quick
+QT       += qml quick
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -50,3 +52,6 @@ FORMS    += mainwindow.ui
 
 DISTFILES += \
     Plate.qml
+
+RESOURCES += \
+    resource.qrc
