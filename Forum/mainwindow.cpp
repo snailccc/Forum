@@ -7,7 +7,6 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
     this->setWindowTitle(QString("Fox-BBS"));
-    this->resize(QSize(1600,800));
 
     Plate *test_post1 = new Plate(this, 1001, "plate_test1");
     Plate *test_post2 = new Plate(this, 1002, "plate_test2");
@@ -22,23 +21,16 @@ MainWindow::MainWindow(QWidget *parent) :
 
 void MainWindow::Initial_Background()
 {
-    this->background = new QWidget();
-    this->setCentralWidget(this->background);
-    this->layout = new QGridLayout(this);
-    this->layout->setContentsMargins(10,10,10,10);
-    this->layout->setHorizontalSpacing(10);
-
     ui->mainToolBar->addAction(this->get_info);
     ui->mainToolBar->addAction(this->switch_account);
     ui->mainToolBar->addAction(this->exit);
 
     for(int i=0;i<plates.size();i++)
     {
-        Plate *post = plates[i];
-        this->layout->addWidget(post,i,0,1,1);
+        Plate *plate = plates[i];
+        ui->plates_layout->addWidget(plate);
+        connect(plate,SIGNAL(clicked(bool)),this,SLOT(Create_Plate_View()));
     }
-
-    this->background->setLayout(this->layout);
 
 }
 
@@ -48,6 +40,12 @@ void MainWindow::Initial_Action()
     this->get_info = new QAction(tr("账户信息"),this);
     this->exit = new QAction(tr("退出"),this);
 
+}
+
+void MainWindow::Create_Plate_View()
+{
+    Plate *plate = qobject_cast<Plate *>(sender());
+    cout<<plate->get_id()<<endl;
 }
 
 

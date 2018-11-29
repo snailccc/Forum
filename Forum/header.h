@@ -3,6 +3,8 @@
 
 #include<vector>
 #include<QString>
+#include<QDebug>
+#include<QObject>
 
 #include<iostream>
 using namespace std;

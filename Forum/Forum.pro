@@ -47,3 +47,6 @@ HEADERS  += mainwindow.h \
     plate.h
 
 FORMS    += mainwindow.ui
+
+DISTFILES += \
+    Plate.qml

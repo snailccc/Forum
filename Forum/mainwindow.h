@@ -24,15 +24,15 @@ private:
     QWidget *background;
     QToolBar *toolbar;
     QAction *switch_account,*exit,*get_info;
+    Ui::MainWindow *ui;
 
 public:
     explicit MainWindow(QWidget *parent = 0);
     void Initial_Background();
     void Initial_Action();
     ~MainWindow();
-
-private:
-    Ui::MainWindow *ui;
+protected slots:
+    void Create_Plate_View();
 };
 
 #endif // MAINWINDOW_H

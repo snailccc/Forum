@@ -6,3 +6,4 @@ Post::Post(int id, string title, string content)
     this->title = title;
     this->content = content;
 }
+
