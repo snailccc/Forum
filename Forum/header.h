@@ -7,6 +7,8 @@
 #include<QObject>
 #include<QGuiApplication>
 #include<QQuickView>
+#include<QDebug>
+#include<map>
 
 #include<iostream>
 using namespace std;

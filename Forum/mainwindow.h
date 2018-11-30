@@ -40,7 +40,7 @@ private:
 
 
 public:
-    explicit MainWindow(QWidget *parent = 0);
+    explicit MainWindow(QWidget *parent = 0,User *user = 0);
     void Initial_Background();
     void Initial_Action();
     ~MainWindow();

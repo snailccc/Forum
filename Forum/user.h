@@ -1,14 +1,15 @@
 #ifndef USER_H
 #define USER_H
-#include<iostream>
-using namespace std;
+
+#include "header.h"
 
 class User
 {
 private:
-    string id,userName, password;
+    QString id,userName, password;
 public:
-    User(string id,string password);
+    User(QString id,QString password);
+    QString ID();
     ViewInfo();
     ~User();
 };

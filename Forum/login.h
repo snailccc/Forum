@@ -1,7 +1,14 @@
 #ifndef LOGIN_H
 #define LOGIN_H
 
+#include "user.h"
+#include "header.h"
+
 #include <QDialog>
+#include <QLabel>
+#include <QLineEdit>
+#include <QPushButton>
+#include <QMessageBox>
 
 // 类的前置申明
 class QLabel;
@@ -12,22 +19,20 @@ class Login: public QDialog
 {
 
 public:
-    explicit Login(QWidget *prent = nullptr);
+    explicit Login(User **user);
     virtual ~Login(){}
 
 private:
-    // 定义一些控件的对象指针
-    // QLable 相当于android中的textView
     QLabel *userLabel;
     QLabel *pwdLabel;
 
-    // QLineEdit 相当于android中的EditText
     QLineEdit *userLineEdit;
     QLineEdit *pwdLineEdit;
 
-    // QPushButton 相当于android的Button
     QPushButton *loginBtn;
     QPushButton *exitBtn;
+
+    User **user;
 
 
 private slots:// 声明槽函数

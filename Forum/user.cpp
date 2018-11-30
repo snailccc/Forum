@@ -1,7 +1,12 @@
 #include "user.h"
 
-User::User(string id,string password)
+User::User(QString id,QString password):
+    id(id),password(password)
 {
-    this->id = id;
-    this->password = password;
+
+}
+
+QString User::ID()
+{
+    return id;
 }

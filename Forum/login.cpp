@@ -1,18 +1,20 @@
 #include "login.h"
-#include <QLabel>
-#include <QLineEdit>
-#include <QPushButton>
-#include <QMessageBox>
 
+map<QString, QString>user_group = {
+    { "u1", "" },
+    { "u2", "" },
+    { "a1", "" },
+    { "a2", "" }
+};
 
-Login::Login(QWidget *prent):QDialog (prent)
+Login::Login(User **user):user(user)
 {
     // 创建一个userLabel 这里的this表示父布局是自己
     userLabel = new QLabel(this);
     // 移动到某个位置
     userLabel->move(50,80);
     // 设置显示的文本
-    userLabel->setText(tr("user name:"));
+    userLabel->setText(tr("user id:"));
 
     // 登录输入框
     userLineEdit = new QLineEdit(this);
@@ -58,15 +60,19 @@ Login::Login(QWidget *prent):QDialog (prent)
 
 void Login::login(){
     // 判断登录的用户名和密码是否正确
-    if(userLineEdit->text().trimmed()==tr("")&&
-            pwdLineEdit->text().trimmed()==tr("")){
-        accept();
-    }else{
-        QMessageBox::warning(this,tr("warning"),tr("user name or user pwd error！"),QMessageBox::Yes);
-
-        // 清空内容和指定焦点
-        userLineEdit->clear();
-        pwdLineEdit->clear();
-        userLineEdit->setFocus();
+    QString id=userLineEdit->text();
+    QString password = pwdLineEdit->text();
+    if(user_group.find(id)!=user_group.end()){
+        if(user_group[id] == password){
+            *user = new User(id,password);
+            accept();
+            return;
+        }
     }
+
+    QMessageBox::warning(this,tr("warning"),tr("user name or user pwd error！"),QMessageBox::Yes);
+    // 清空内容和指定焦点
+    userLineEdit->clear();
+    pwdLineEdit->clear();
+    userLineEdit->setFocus();
 }

@@ -48,7 +48,8 @@ HEADERS  += mainwindow.h \
     comment.h \
     plate.h
 
-FORMS    += mainwindow.ui
+FORMS    += mainwindow.ui \
+    plate.ui
 
 DISTFILES += \
     Plate.qml

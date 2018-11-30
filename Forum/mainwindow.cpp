@@ -1,8 +1,8 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
-MainWindow::MainWindow(QWidget *parent) :
-    QMainWindow(parent),
+MainWindow::MainWindow(QWidget *parent, User *user) :
+    QMainWindow(parent),user(user),
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
@@ -49,18 +49,23 @@ void MainWindow::Create_Plate_View()
     int id = plate->get_id();
     QString title = plate->get_title();
 
-    this->view->setTitle(title);
-    QQmlContext *engine_plate = this->view->rootContext();
-    engine_plate->setContextProperty("plate_c",plate);
+    plate->AddPost(new Post(0,100001,"post_test1","fox test1"));
+    plate->AddPost(new Post(0,100002,"post_test2","fox test2"));
 
-    QQmlContext *engine_post = this->view->rootContext();
-    plate->postgroup->AddPost(Post(100001,"test_post100001","I'm test the post 100001"));
-    plate->postgroup->AddPost(Post(100002,"test_post100002","I'm test the post 100002"));
-    engine_post->setContextProperty("postgroup", plate->postgroup);
+    plate->Show();
 
-    this->view->setSource(QUrl("qrc:/qml/qml/Plate.qml"));
-    view->resize(800,600);
-    view->show();
+//    this->view->setTitle(title);
+//    QQmlContext *engine_plate = this->view->rootContext();
+//    engine_plate->setContextProperty("plate_c",plate);
+
+//    QQmlContext *engine_post = this->view->rootContext();
+//    plate->postgroup->AddPost(Post(100001,"test_post100001","I'm test the post 100001"));
+//    plate->postgroup->AddPost(Post(100002,"test_post100002","I'm test the post 100002"));
+//    engine_post->setContextProperty("postgroup", plate->postgroup);
+
+//    this->view->setSource(QUrl("qrc:/qml/qml/Plate.qml"));
+//    view->resize(800,600);
+//    view->show();
 
 }
 
