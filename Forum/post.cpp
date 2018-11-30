@@ -4,9 +4,8 @@ Post::Post(QWidget *parent, int id, QString title, QString content):
     QPushButton(parent), id(id),title(title),content(content)
 {
     this->setText(title);
+    connect(this,SIGNAL(clicked(bool)),this,SLOT(Detail()));
 }
-
-
 
 
 

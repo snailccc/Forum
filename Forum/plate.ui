@@ -28,7 +28,10 @@
      <height>101</height>
     </rect>
    </property>
-   <layout class="QVBoxLayout" name="plate_title_layout">
+   <layout class="QVBoxLayout" name="plate_title_layout" stretch="0">
+    <property name="topMargin">
+     <number>0</number>
+    </property>
     <item>
      <widget class="QLabel" name="label">
       <property name="styleSheet">
@@ -53,9 +56,9 @@
      <height>341</height>
     </rect>
    </property>
-   <layout class="QVBoxLayout" name="post_group">
+   <layout class="QVBoxLayout" name="postgroup">
     <property name="sizeConstraint">
-     <enum>QLayout::SetMinimumSize</enum>
+     <enum>QLayout::SetFixedSize</enum>
     </property>
    </layout>
   </widget>
@@ -70,7 +73,7 @@
    </property>
    <layout class="QHBoxLayout" name="horizontalLayout">
     <item>
-     <widget class="QPushButton" name="pushButton_3">
+     <widget class="QPushButton" name="pub_post">
       <property name="text">
        <string>发布新帖</string>
       </property>
@@ -84,7 +87,7 @@
      </widget>
     </item>
     <item>
-     <widget class="QPushButton" name="pub_post">
+     <widget class="QPushButton" name="button">
       <property name="text">
        <string>PushButton</string>
       </property>
@@ -92,12 +95,6 @@
     </item>
    </layout>
   </widget>
-  <zorder>verticalLayoutWidget</zorder>
-  <zorder>verticalLayoutWidget_2</zorder>
-  <zorder>label</zorder>
-  <zorder>toolButton</zorder>
-  <zorder>label</zorder>
-  <zorder>horizontalLayoutWidget</zorder>
  </widget>
  <resources/>
  <connections/>

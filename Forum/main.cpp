@@ -8,7 +8,8 @@
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
-
+    while(1)
+    {
         User *user = NULL;
         Login login_window(&user);
 
@@ -17,6 +18,7 @@ int main(int argc, char *argv[])
              w.show();
              return a.exec();
         }
+    }
 
     return a.exec();
 

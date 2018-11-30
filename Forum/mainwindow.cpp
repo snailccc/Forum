@@ -18,6 +18,11 @@ MainWindow::MainWindow(QWidget *parent, User *user) :
     Initial_Background();
 
     view = new QQuickView();
+
+    //////////////test/////////////////////
+    test_post1->AddPost(new Post(0,100001,"post_test1","fox test1"));
+    test_post1->AddPost(new Post(0,100002,"post_test2","fox test2"));
+    test_post1->AddPost(new Post(0,100003,"post_test2","fox test2"));
 }
 
 void MainWindow::Initial_Background()
@@ -48,9 +53,6 @@ void MainWindow::Create_Plate_View()
     Plate *plate = qobject_cast<Plate *>(sender());
     int id = plate->get_id();
     QString title = plate->get_title();
-
-    plate->AddPost(new Post(0,100001,"post_test1","fox test1"));
-    plate->AddPost(new Post(0,100002,"post_test2","fox test2"));
 
     plate->Show();
 

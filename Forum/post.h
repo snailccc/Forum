@@ -20,6 +20,9 @@ public:
     Q_INVOKABLE QString Title()const{return title;}
     Q_INVOKABLE int ID()const{return id;}
     Q_INVOKABLE QString Content()const{return content;}
+
+//private slots:
+//    void Detail();
 };
 
 ////////////////////////////////PostGroup////////////////////////////////////////
