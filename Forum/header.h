@@ -9,6 +9,7 @@
 #include<QQuickView>
 #include<QDebug>
 #include<map>
+#include<QPalette>
 
 #include<iostream>
 using namespace std;

@@ -2,6 +2,7 @@
 #define PLATE_H
 #include "header.h"
 #include "post.h"
+#include "user.h"
 #include "ui_plate.h"
 #include "ui_public.h"
 #include<QPushButton>
@@ -11,6 +12,7 @@
 class Plate;
 class Plate_View;
 class Pub_View;
+class Post_Mange_View;
 
 /////////////////////Pub_View//////////////////////////
 
@@ -42,7 +44,7 @@ public:
     Plate_View(QWidget *parent,QString title);
     void Init_View();
     void Add(Post *post);
-    void Delete();
+    void Delete(int postId);
 private slots:
     void on_pub_post_clicked(bool checked);
     void postDetail();
@@ -71,6 +73,13 @@ signals:
 
 public slots:
 
+
+};
+
+//////////////////////Post_Mange_View/////////////////////
+class Post_Mange_View:public QDialog
+{
+private:
 
 };
 

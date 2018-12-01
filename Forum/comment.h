@@ -2,14 +2,16 @@
 #define COMMENT_H
 #include "header.h"
 #include<QDateTime>
+#include<QLabel>
 
-class comment
+class Comment:public QLabel
 {
+    Q_OBJECT
 private:
-    string content;
+    QString content;
     int time;
 public:
-    comment();
+    Comment(QWidget *parent,QString content);
 };
 
 #endif // COMMENT_H

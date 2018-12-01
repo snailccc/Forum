@@ -4,6 +4,7 @@
 #include "plate.h"
 #include "header.h"
 #include "user.h"
+#include "login.h"
 
 #include<QMainWindow>
 #include<QGridLayout>
@@ -27,25 +28,25 @@ class MainWindow : public QMainWindow
 {
     Q_OBJECT
 private:
-
     QGridLayout *layout;
     vector <Plate*> plates;
     QWidget *background;
     QToolBar *toolbar;
-    QAction *switch_account,*exit,*get_info;
+    QAction *logout,*exit,*account_info;
     Ui::MainWindow *ui;
     QQuickView *view;
     QQmlApplicationEngine *view1;
-    User *user;
-
+    Login *login;
 
 public:
-    explicit MainWindow(QWidget *parent = 0,User *user = 0);
+    explicit MainWindow(QWidget *parent=0);
     void Initial_Background();
     void Initial_Action();
     ~MainWindow();
 protected slots:
     void Create_Plate_View();
+    void Logout();
+    void Get_Account_Info();
 };
 
 #endif // MAINWINDOW_H

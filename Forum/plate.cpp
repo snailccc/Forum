@@ -15,7 +15,7 @@ void Plate::AddPost(Post *post)
 
 void Plate::DeletePost(int id)
 {
-    view->Delete();
+    view->Delete(id);
 }
 
 void Plate::Show()
@@ -23,6 +23,11 @@ void Plate::Show()
     view->Init_View();
     view->show();
 }
+
+//Plate_View* Plate::View()
+//{
+//    return view;
+//}
 
 //////////////////////Plate_View/////////////////////
 Plate_View::Plate_View(QWidget *parent,QString title):
@@ -49,9 +54,24 @@ void Plate_View::Add(Post *post){
     postgroup.push_back(post);
 }
 
-void Plate_View::Delete()
+void Plate_View::Delete(int postId)
 {
-
+//    vector<Post*>::iterator it=postgroup.begin();
+//    int pos = postgroup.size();
+//    while(it!=postgroup.end())
+//    {
+//        if(*postgroup->ID() == postId)
+//        {
+//            ui->postgroup->removeWidget(*postgroup);
+//            it = postgroup.erase(it);
+//            break;
+//        }
+//        else
+//        {
+//            it++;
+//        }
+//    }
+//    update();
 }
 
 void Plate_View::on_pub_post_clicked(bool checked)
@@ -63,7 +83,7 @@ void Plate_View::on_pub_post_clicked(bool checked)
         int id = 100007;
         QString p_title = pub_view->Title();
         QString p_content = pub_view->Content();
-        Post *post = new Post(0,id,p_title,p_content);
+        Post *post = new Post(this,id,p_title,p_content,user->ID());
         postgroup.insert(postgroup.begin(),post);
         ui->postgroup->addWidget(postgroup.front());
         update();
@@ -72,7 +92,14 @@ void Plate_View::on_pub_post_clicked(bool checked)
 
 void Plate_View::postDetail()
 {
-    qDebug()<<"detail"<<endl;
+    Post *post = qobject_cast<Post *>(sender());
+//    post->show();
+    int postId = post->Show();
+    if(postId)
+    {
+        qDebug()<<postId<<endl;
+    }
+
 }
 
 //////////////////////Pub_View/////////////////////
@@ -98,3 +125,6 @@ void Pub_View::on_ok_clicked(bool checked)
     content = ui->content->toPlainText();
     accept();
 }
+
+//////////////////////Post_Mange_View/////////////////////
+
