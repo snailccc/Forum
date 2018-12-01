@@ -44,11 +44,11 @@ class PostView:public QDialog
 private:
     Ui::post *ui;
     vector<Comment*>commentGroup;
-    QString postContent,postTitle;
+    QString postContent,postTitle,authorId;
     int postId;
     PubComment *pubComment;
 public:
-    PostView(QWidget *parent,int postId, QString postContent,QString postTitle);
+    PostView(QWidget *parent,int postId, QString postContent,QString postTitle,QString authorId);
     void Init_View();
     void AddComment(QString content);
 

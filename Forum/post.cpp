@@ -5,7 +5,7 @@ Post::Post(QWidget *parent, int id, QString title, QString content, QString auth
     QPushButton(parent), id(id),title(title),content(content),authorId(authorId)
 {
     this->setText(title);
-    this->view = new PostView(this,id,content,title);
+    this->view = new PostView(this,id,content,title,authorId);
 }
 
 int Post::Show()
@@ -24,13 +24,14 @@ void Post::AddComment(QString content)
 }
 
 ////////////////////////////////PostView///////////////////////////////////////////////
-PostView::PostView(QWidget *parent, int postId, QString postContent, QString postTitle):
-    QDialog(parent),postId(postId),postContent(postContent),postTitle(postTitle),ui(new Ui::post)
+PostView::PostView(QWidget *parent, int postId, QString postContent, QString postTitle,QString authorId):
+    QDialog(parent),postId(postId),postContent(postContent),
+    postTitle(postTitle),ui(new Ui::post),authorId(authorId)
 {
     ui->setupUi(this);
     this->setWindowTitle(postTitle);
     ui->post_content->setText(this->postContent);
-    if(user->ID() == postId)
+    if(user->ID() == authorId)
     {
         QPushButton *delPost = new QPushButton("删除该板块", this);
         delPost->setGeometry(340,120,100,30);
