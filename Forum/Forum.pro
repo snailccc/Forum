@@ -54,7 +54,8 @@ FORMS    += mainwindow.ui \
     post.ui \
     comment.ui \
     user_info.ui \
-    postMange.ui
+    postMange.ui \
+    appoint.ui
 
 DISTFILES += \
     Plate.qml

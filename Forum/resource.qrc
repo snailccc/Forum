@@ -2,4 +2,7 @@
     <qresource prefix="/qml">
         <file>qml/Plate.qml</file>
     </qresource>
+    <qresource prefix="/">
+        <file>user/list_user.txt</file>
+    </qresource>
 </RCC>

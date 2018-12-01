@@ -5,7 +5,7 @@ Plate::Plate(QWidget *parent, int id, QString title):
     QPushButton(parent),id(id),title(title)
 {
     this->setText(title);
-    this->view = new Plate_View(this,title);
+    this->view = new Plate_View(this,title,id);
 }
 
 void Plate::AddPost(Post *post)
@@ -24,17 +24,22 @@ void Plate::Show()
     view->show();
 }
 
+int Plate::Id()
+{
+    return id;
+}
+
 //Plate_View* Plate::View()
 //{
 //    return view;
 //}
 
 //////////////////////Plate_View/////////////////////
-Plate_View::Plate_View(QWidget *parent,QString title):
-    QDialog(parent),title(title),
+Plate_View::Plate_View(QWidget *parent,QString title,int id):
+    QDialog(parent),title(title),plateId(id),
     ui(new Ui::Plate)
 {
-//    connect(test,SIGNAL(clicked(bool)),this,SLOT(Pub_Post()));
+
 }
 
 void Plate_View::Init_View()
@@ -81,12 +86,12 @@ void Plate_View::on_pub_post_clicked(bool checked)
     pub_view->show();
     if(pub_view->exec()==QDialog::Accepted)
     {
-        int id = 100007;
+        int id = postgroup.size()+this->plateId*1000+1;
         QString p_title = pub_view->Title();
         QString p_content = pub_view->Content();
-        Post *post = new Post(this,id,p_title,p_content,user->ID());
+        Post *post = new Post(this,id,plateId,p_title,p_content,user->ID());
         postgroup.insert(postgroup.begin(),post);
-        ui->postgroup->addWidget(postgroup.front());
+        ui->postgroup->insertWidget(0,postgroup.front());
         update();
     }
 }

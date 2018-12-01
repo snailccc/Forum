@@ -15,4 +15,8 @@
 #include<iostream>
 using namespace std;
 
+#define COMMENT_USER 1
+#define MANAGER_USER 2
+#define HOST_USER 3
+
 #endif // HEADER_H

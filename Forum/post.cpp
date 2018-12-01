@@ -1,11 +1,11 @@
 #include "post.h"
 
 ////////////////////////////////Post///////////////////////////////////////////////
-Post::Post(QWidget *parent, int id, QString title, QString content, QString authorId):
-    QPushButton(parent), id(id),title(title),content(content),authorId(authorId)
+Post::Post(QWidget *parent, int id, int plateId,QString title, QString content, QString authorId):
+    QPushButton(parent), id(id),plateId(plateId),title(title),content(content),authorId(authorId)
 {
     this->setText(title);
-    this->view = new PostView(this,id,content,title,authorId);
+    this->view = new PostView(this,id,plateId,content,title,authorId);
 }
 
 int Post::Show()
@@ -24,14 +24,16 @@ void Post::AddComment(int commentId,QString content)
 }
 
 ////////////////////////////////PostView///////////////////////////////////////////////
-PostView::PostView(QWidget *parent, int postId, QString postContent, QString postTitle,QString authorId):
-    QDialog(parent),postId(postId),postContent(postContent),
+PostView::PostView(QWidget *parent, int postId, int plateId,QString postContent, QString postTitle,QString authorId):
+    QDialog(parent),postId(postId),plateId(plateId),postContent(postContent),
     postTitle(postTitle),ui(new Ui::post),authorId(authorId)
 {
     ui->setupUi(this);
     this->setWindowTitle(postTitle);
     ui->post_content->setText(this->postContent);
-    if(user->ID() == authorId)
+    if(user->ID() == authorId ||
+            user->Type()==MANAGER_USER ||
+            (user->Type()==HOST_USER && user->PlateId()==this->plateId))
     {
         QPushButton *delPost = new QPushButton("删除该贴", this);
         delPost->setGeometry(340,120,100,30);

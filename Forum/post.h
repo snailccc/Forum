@@ -24,11 +24,11 @@ class Post:public QPushButton
     Q_OBJECT
 private:
     QString title,content,authorId;
-    int timestamp, id;
+    int timestamp, id, plateId;
     PostView *view;
 
 public:
-    Post(QWidget *parent, int id, QString title, QString content, QString authorId);
+    Post(QWidget *parent, int id,int plateId, QString title, QString content, QString authorId);
     Q_INVOKABLE QString Title()const{return title;}
     Q_INVOKABLE int ID()const{return id;}
     Q_INVOKABLE QString Content()const{return content;}
@@ -46,10 +46,10 @@ private:
     Ui::post *ui;
     vector<Comment*>commentGroup;
     QString postContent,postTitle,authorId;
-    int postId;
+    int postId,plateId;
     PubComment *pubComment;
 public:
-    PostView(QWidget *parent,int postId, QString postContent,QString postTitle,QString authorId);
+    PostView(QWidget *parent,int postId, int plateId,QString postContent,QString postTitle,QString authorId);
     void Init_View();
     void AddComment(int commentId, QString content);
 
