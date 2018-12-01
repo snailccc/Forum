@@ -97,7 +97,6 @@ void Plate_View::postDetail()
     int postId = post->Show();
     if(postId)
     {
-        qDebug()<<user->ID()<<endl;
         Delete(postId);
     }
 

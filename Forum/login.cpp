@@ -56,8 +56,6 @@ Login::Login(User **user):user(user)
 }
 
 
-
-
 void Login::login(){
     // 判断登录的用户名和密码是否正确
     QString id=userLineEdit->text();

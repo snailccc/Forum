@@ -12,6 +12,7 @@
 #include<QVariant>
 #include<QPushButton>
 #include<QTextEdit>
+#include<QSpacerItem>
 
 class Post;
 class PostView;
@@ -32,7 +33,7 @@ public:
     Q_INVOKABLE int ID()const{return id;}
     Q_INVOKABLE QString Content()const{return content;}
     int Show();
-    void AddComment(QString content);
+    void AddComment(int commentId, QString content);
 
 };
 
@@ -50,11 +51,12 @@ private:
 public:
     PostView(QWidget *parent,int postId, QString postContent,QString postTitle,QString authorId);
     void Init_View();
-    void AddComment(QString content);
+    void AddComment(int commentId, QString content);
 
 private slots:
     void on_add_clicked(bool checked);
     void DelPost();
+    void DelComment();
 };
 
 ////////////////////////////////PubComment////////////////////////////////////////

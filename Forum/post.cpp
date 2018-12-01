@@ -18,9 +18,9 @@ int Post::Show()
     return 0;
 }
 
-void Post::AddComment(QString content)
+void Post::AddComment(int commentId,QString content)
 {
-    view->AddComment(content);
+    view->AddComment(commentId,content);
 }
 
 ////////////////////////////////PostView///////////////////////////////////////////////
@@ -33,7 +33,7 @@ PostView::PostView(QWidget *parent, int postId, QString postContent, QString pos
     ui->post_content->setText(this->postContent);
     if(user->ID() == authorId)
     {
-        QPushButton *delPost = new QPushButton("删除该板块", this);
+        QPushButton *delPost = new QPushButton("删除该贴", this);
         delPost->setGeometry(340,120,100,30);
         connect(delPost,SIGNAL(clicked(bool)),this,SLOT(DelPost()));
     }
@@ -42,14 +42,27 @@ PostView::PostView(QWidget *parent, int postId, QString postContent, QString pos
 void PostView::Init_View()
 {
     this->setWindowTitle(postTitle);
+    for(int i=commentGroup.size()-1;i>=0;i++)
+    {
+        Comment *comment = commentGroup[i];
+        ui->commentGroup->addWidget(comment->View());
+        if(comment->AuthorId()==authorId)
+        {
+            ui->deleteButtonGroup->addWidget(comment->DelButton());
+            connect(comment->DelButton(),SIGNAL(clicked(bool)),this,SLOT(DelComment()));
+        }
+        else
+        {
+            ui->deleteButtonGroup->addSpacing(20);
+        }
+    }
 }
 
-void PostView::AddComment(QString content)
+void PostView::AddComment(int commentId,QString content)
 {
-    Comment *comment = new Comment(this,content);
+    Comment *comment = new Comment(this,commentId,content,user->ID());
     commentGroup.insert(commentGroup.begin(),comment);
 }
-
 
 void PostView::on_add_clicked(bool checked)
 {
@@ -58,11 +71,39 @@ void PostView::on_add_clicked(bool checked)
     if(pubComment->exec() == QDialog::Accepted)
     {
         QString c_content = pubComment->Content();
-        Comment *comment = new Comment(this,c_content);
+        Comment *comment = new Comment(this,123123,c_content,user->ID());
         commentGroup.insert(commentGroup.begin(),comment);
-        ui->commentGroup->addWidget(commentGroup.front());
+        comment = commentGroup.front();
+        ui->commentGroup->addWidget(comment->View());
+        ui->deleteButtonGroup->addWidget(comment->DelButton());
+        connect(comment->DelButton(),SIGNAL(clicked(bool)),this,SLOT(DelComment()));
         update();
     }
+}
+
+void PostView::DelComment()
+{
+    Del_Button *button = qobject_cast<Del_Button*>(sender());
+    int commentId = button->Id();
+    vector<Comment*>::iterator it=commentGroup.begin();
+    while(it!=commentGroup.end())
+    {
+        Comment *comment = *it;
+        if(comment->Id() == commentId)
+        {
+            QLabel *view = comment->View();
+            QPushButton *del = comment->DelButton();
+            ui->commentGroup->removeWidget(view);
+            ui->deleteButtonGroup->removeWidget(del);
+            it = commentGroup.erase(it);
+            break;
+        }
+        else
+        {
+            it++;
+        }
+    }
+    update();
 }
 
 void PostView::DelPost()

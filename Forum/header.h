@@ -10,6 +10,7 @@
 #include<QDebug>
 #include<map>
 #include<QPalette>
+#include<QFont>
 
 #include<iostream>
 using namespace std;
