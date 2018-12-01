@@ -40,6 +40,7 @@ public:
     QString Pwd(QString id);
 private slots:// 声明槽函数
     void login();
+    void Exit();
 
 };
 

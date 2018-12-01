@@ -67,7 +67,7 @@ Login_View::Login_View(QWidget *parent):
 
     connect(loginBtn,&QPushButton::clicked,this,&Login_View::login);
     // close 是QWidget里面的函数表示用来关闭控件
-    connect(exitBtn,&QPushButton::clicked,this,&Login_View::close);
+    connect(exitBtn,&QPushButton::clicked,this,&Login_View::Exit);
 
 }
 
@@ -106,4 +106,9 @@ void Login_View::login(){
 QString Login_View::Pwd(QString id)
 {
     return USER_GROUP[id];
+}
+
+void Login_View::Exit()
+{
+    exit(0);
 }

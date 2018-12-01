@@ -20,7 +20,6 @@ void Plate::DeletePost(int id)
 
 void Plate::Show()
 {
-    view->Init_View();
     view->show();
 }
 
@@ -39,7 +38,7 @@ Plate_View::Plate_View(QWidget *parent,QString title,int id):
     QDialog(parent),title(title),plateId(id),
     ui(new Ui::Plate)
 {
-
+    Init_View();
 }
 
 void Plate_View::Init_View()
@@ -47,7 +46,7 @@ void Plate_View::Init_View()
     ui->setupUi(this);
     this->setWindowTitle(title);
     this->setFixedSize(800,600);
-    for(int i=postgroup.size()-1;i>=0;i--)
+    for(int i=0;i<postgroup.size();i++)
     {
         Post *post = postgroup[i];
         ui->postgroup->addWidget(post,1);
@@ -56,7 +55,9 @@ void Plate_View::Init_View()
 }
 
 void Plate_View::Add(Post *post){
-    postgroup.push_back(post);
+    postgroup.insert(postgroup.begin(),post);
+    ui->postgroup->insertWidget(0,postgroup.front());
+    connect(postgroup.front(),SIGNAL(clicked(bool)),this,SLOT(postDetail()));
 }
 
 void Plate_View::Delete(int postId)
@@ -92,6 +93,7 @@ void Plate_View::on_pub_post_clicked(bool checked)
         Post *post = new Post(this,id,plateId,p_title,p_content,user->ID());
         postgroup.insert(postgroup.begin(),post);
         ui->postgroup->insertWidget(0,postgroup.front());
+        connect(postgroup.front(),SIGNAL(clicked(bool)),this,SLOT(postDetail()));
         update();
     }
 }

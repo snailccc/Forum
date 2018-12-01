@@ -108,7 +108,6 @@ void MainWindow::Create_Plate_View()
     Plate *plate = qobject_cast<Plate *>(sender());
     //    int id = plate->get_id();
     QString title = plate->get_title();
-
     plate->Show();
 
     //    this->view->setTitle(title);
