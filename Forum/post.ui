@@ -81,67 +81,30 @@
     </widget>
    </widget>
   </widget>
-  <widget class="QWidget" name="verticalLayoutWidget">
+  <widget class="QTableWidget" name="commentGroup">
    <property name="geometry">
     <rect>
      <x>100</x>
-     <y>170</y>
-     <width>591</width>
-     <height>391</height>
+     <y>160</y>
+     <width>561</width>
+     <height>401</height>
     </rect>
    </property>
-   <layout class="QVBoxLayout" name="main_layout">
-    <item>
-     <widget class="QScrollArea" name="scrollArea_2">
-      <property name="widgetResizable">
-       <bool>true</bool>
-      </property>
-      <property name="alignment">
-       <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
-      </property>
-      <widget class="QWidget" name="scrollAreaWidgetContents">
-       <property name="geometry">
-        <rect>
-         <x>0</x>
-         <y>0</y>
-         <width>587</width>
-         <height>387</height>
-        </rect>
-       </property>
-       <widget class="QWidget" name="verticalLayoutWidget_2">
-        <property name="geometry">
-         <rect>
-          <x>0</x>
-          <y>0</y>
-          <width>481</width>
-          <height>421</height>
-         </rect>
-        </property>
-        <layout class="QVBoxLayout" name="commentGroup">
-         <property name="sizeConstraint">
-          <enum>QLayout::SetMinAndMaxSize</enum>
-         </property>
-        </layout>
-       </widget>
-       <widget class="QWidget" name="verticalLayoutWidget_3">
-        <property name="geometry">
-         <rect>
-          <x>480</x>
-          <y>0</y>
-          <width>111</width>
-          <height>421</height>
-         </rect>
-        </property>
-        <layout class="QVBoxLayout" name="deleteButtonGroup">
-         <property name="sizeConstraint">
-          <enum>QLayout::SetMinAndMaxSize</enum>
-         </property>
-        </layout>
-       </widget>
-      </widget>
-     </widget>
-    </item>
-   </layout>
+   <column>
+    <property name="text">
+     <string>用户</string>
+    </property>
+   </column>
+   <column>
+    <property name="text">
+     <string>评论</string>
+    </property>
+   </column>
+   <column>
+    <property name="text">
+     <string> </string>
+    </property>
+   </column>
   </widget>
  </widget>
  <resources/>

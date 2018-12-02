@@ -5,6 +5,7 @@
 #include<QLabel>
 #include<QPushButton>
 #include<QObject>
+#include<QTextBrowser>
 
 class Comment;
 class Del_Button;
@@ -31,15 +32,16 @@ class Comment:public QObject
     Q_OBJECT
 private:
     QString content,authorId;
+    QTextBrowser *contentView;
     int time,id;
-    QLabel *view;
     Del_Button *del;
 public:
     Comment(QWidget *parent,int commentId, QString content,QString authorId);
     int Id();
-    QLabel* View();
     QPushButton* DelButton();
     QString AuthorId();
+    QString Content();
+    QTextBrowser* ContentView();
 public slots:
     int Del();
 };

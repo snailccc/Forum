@@ -106,7 +106,6 @@ void Plate_View::postDetail()
     {
         Delete(postId);
     }
-
 }
 
 //////////////////////Pub_View/////////////////////

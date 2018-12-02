@@ -3,13 +3,12 @@
 Comment::Comment(QWidget *parent,int commentId,QString content,QString authorId):
     QObject(parent),id(commentId),content(content),authorId(authorId)
 {
-    view = new QLabel(content,0);
+    contentView = new QTextBrowser();
     del = new Del_Button(0,id,"X");
-    view->setAlignment(Qt::AlignVCenter);
-    view->setStyleSheet("QLabel{background:yellow}");
+    contentView->setText(content);
     QFont font;
     font.setPointSize(11);
-    view->setFont(font);
+    contentView->setFont(font);
 }
 
 int Comment::Id()
@@ -17,10 +16,6 @@ int Comment::Id()
     return id;
 }
 
-QLabel* Comment::View()
-{
-    return view;
-}
 
 QPushButton* Comment::DelButton()
 {
@@ -35,4 +30,14 @@ QString Comment::AuthorId()
 int Comment::Del()
 {
 
+}
+
+QString Comment::Content()
+{
+    return content;
+}
+
+QTextBrowser* Comment::ContentView()
+{
+    return contentView;
 }

@@ -13,6 +13,9 @@
 #include<QPushButton>
 #include<QTextEdit>
 #include<QSpacerItem>
+#include<QTableWidget>
+#include<QTableWidgetItem>
+#include<QTextBrowser>
 
 class Post;
 class PostView;

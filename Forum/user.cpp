@@ -52,6 +52,11 @@ QString User::ID()
     return id;
 }
 
+QString User::Name()
+{
+    return userName;
+}
+
 int User::Type()
 {
     return type;

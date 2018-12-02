@@ -39,24 +39,35 @@ PostView::PostView(QWidget *parent, int postId, int plateId,QString postContent,
         delPost->setGeometry(340,120,100,30);
         connect(delPost,SIGNAL(clicked(bool)),this,SLOT(DelPost()));
     }
+
+    Init_View();
 }
 
 void PostView::Init_View()
 {
     this->setWindowTitle(postTitle);
-    for(int i=commentGroup.size()-1;i>=0;i++)
+
+//    ui->commentGroup->setSettionResizeMode(0,QHeaderView::Fixed);
+    ui->commentGroup->horizontalHeader()->setSectionResizeMode(0,QHeaderView::Fixed);
+    ui->commentGroup->setColumnWidth(0,100);
+    ui->commentGroup->horizontalHeader()->setSectionResizeMode(1,QHeaderView::Stretch);
+    ui->commentGroup->horizontalHeader()->setSectionResizeMode(2,QHeaderView::Fixed);
+    ui->commentGroup->setColumnWidth(2,50);
+    ui->commentGroup->verticalHeader()->hide();
+    ui->commentGroup->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    ui->commentGroup->setContextMenuPolicy(Qt::CustomContextMenu);
+
+    for(int i=0;i<commentGroup.size();i--)
     {
         Comment *comment = commentGroup[i];
-        ui->commentGroup->addWidget(comment->View());
+        ui->commentGroup->setItem(i,0,new QTableWidgetItem(user->Name()));
+        ui->commentGroup->setCellWidget(i,1,comment->ContentView());
         if(comment->AuthorId()==authorId)
         {
-            ui->deleteButtonGroup->addWidget(comment->DelButton());
+            ui->commentGroup->setCellWidget(i,2,comment->DelButton());
             connect(comment->DelButton(),SIGNAL(clicked(bool)),this,SLOT(DelComment()));
         }
-        else
-        {
-            ui->deleteButtonGroup->addSpacing(20);
-        }
+
     }
 }
 
@@ -64,6 +75,11 @@ void PostView::AddComment(int commentId,QString content)
 {
     Comment *comment = new Comment(this,commentId,content,user->ID());
     commentGroup.insert(commentGroup.begin(),comment);
+    ui->commentGroup->insertRow(0);
+    ui->commentGroup->setItem(0,0,new QTableWidgetItem(user->Name()));
+    ui->commentGroup->setCellWidget(0,1,comment->ContentView());
+    ui->commentGroup->setCellWidget(0,2,comment->DelButton());
+    connect(comment->DelButton(),SIGNAL(clicked(bool)),this,SLOT(DelComment()));
 }
 
 void PostView::on_add_clicked(bool checked)
@@ -73,12 +89,10 @@ void PostView::on_add_clicked(bool checked)
     if(pubComment->exec() == QDialog::Accepted)
     {
         QString c_content = pubComment->Content();
-        Comment *comment = new Comment(this,123123,c_content,user->ID());
-        commentGroup.insert(commentGroup.begin(),comment);
-        comment = commentGroup.front();
-        ui->commentGroup->addWidget(comment->View());
-        ui->deleteButtonGroup->addWidget(comment->DelButton());
-        connect(comment->DelButton(),SIGNAL(clicked(bool)),this,SLOT(DelComment()));
+        AddComment(123123,c_content);
+//        ui->commentGroup->insertWidget(0,comment->View());
+//        ui->deleteButtonGroup->insertWidget(0,comment->DelButton());
+//        connect(comment->DelButton(),SIGNAL(clicked(bool)),this,SLOT(DelComment()));
         update();
     }
 }
@@ -88,21 +102,24 @@ void PostView::DelComment()
     Del_Button *button = qobject_cast<Del_Button*>(sender());
     int commentId = button->Id();
     vector<Comment*>::iterator it=commentGroup.begin();
+    int pos = 0;
     while(it!=commentGroup.end())
     {
         Comment *comment = *it;
         if(comment->Id() == commentId)
         {
-            QLabel *view = comment->View();
-            QPushButton *del = comment->DelButton();
-            ui->commentGroup->removeWidget(view);
-            ui->deleteButtonGroup->removeWidget(del);
+//            QLabel *view = comment->View();
+//            QPushButton *del = comment->DelButton();
+//            ui->commentGroup->removeWidget(view);
+//            ui->deleteButtonGroup->removeWidget(del);
+            ui->commentGroup->removeRow(pos);
             it = commentGroup.erase(it);
             break;
         }
         else
         {
             it++;
+            pos++;
         }
     }
     update();
