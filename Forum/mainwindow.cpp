@@ -75,10 +75,17 @@ void MainWindow::Initial_Background()
         this->remove->setVisible(0);
     }
 
-    for(int i=0;i<plates.size();i++)
+    ui->plateGroup->horizontalHeader()->hide();
+    ui->plateGroup->horizontalHeader()->setSectionResizeMode(0,QHeaderView::Stretch);
+    ui->plateGroup->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    ui->plateGroup->verticalHeader()->hide();
+    int n = plates.size();
+    ui->plateGroup->setRowCount(n*2);
+    for(int i=0;i<n;i++)
     {
         Plate *plate = plates[i];
-        ui->plates_layout->addWidget(plate);
+        ui->plateGroup->setCellWidget(i,0,plate);
+//        ui->plateGroup->setItem(i,0,new QTableWidgetItem());
         connect(plate,SIGNAL(clicked(bool)),this,SLOT(Create_Plate_View()));
     }
 }

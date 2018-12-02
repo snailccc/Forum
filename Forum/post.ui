@@ -26,61 +26,6 @@
     <string>发表评论</string>
    </property>
   </widget>
-  <widget class="QPushButton" name="manage">
-   <property name="geometry">
-    <rect>
-     <x>220</x>
-     <y>120</y>
-     <width>100</width>
-     <height>30</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>管理评论</string>
-   </property>
-  </widget>
-  <widget class="QScrollArea" name="scrollArea">
-   <property name="geometry">
-    <rect>
-     <x>10</x>
-     <y>10</y>
-     <width>781</width>
-     <height>87</height>
-    </rect>
-   </property>
-   <property name="styleSheet">
-    <string notr="true">background-color: rgb(255, 255, 127);</string>
-   </property>
-   <property name="widgetResizable">
-    <bool>true</bool>
-   </property>
-   <widget class="QWidget" name="scrollAreaWidgetContents_2">
-    <property name="geometry">
-     <rect>
-      <x>0</x>
-      <y>0</y>
-      <width>779</width>
-      <height>85</height>
-     </rect>
-    </property>
-    <widget class="QLabel" name="post_content">
-     <property name="geometry">
-      <rect>
-       <x>0</x>
-       <y>0</y>
-       <width>771</width>
-       <height>431</height>
-      </rect>
-     </property>
-     <property name="text">
-      <string>plate_content</string>
-     </property>
-     <property name="alignment">
-      <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
-     </property>
-    </widget>
-   </widget>
-  </widget>
   <widget class="QTableWidget" name="commentGroup">
    <property name="geometry">
     <rect>
@@ -105,6 +50,16 @@
      <string> </string>
     </property>
    </column>
+  </widget>
+  <widget class="QTextBrowser" name="post_content">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>10</y>
+     <width>781</width>
+     <height>91</height>
+    </rect>
+   </property>
   </widget>
  </widget>
  <resources/>

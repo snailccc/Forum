@@ -89,10 +89,8 @@ void PostView::on_add_clicked(bool checked)
     if(pubComment->exec() == QDialog::Accepted)
     {
         QString c_content = pubComment->Content();
-        AddComment(123123,c_content);
-//        ui->commentGroup->insertWidget(0,comment->View());
-//        ui->deleteButtonGroup->insertWidget(0,comment->DelButton());
-//        connect(comment->DelButton(),SIGNAL(clicked(bool)),this,SLOT(DelComment()));
+        int id = postId*1000 + commentGroup.size();
+        AddComment(id,c_content);
         update();
     }
 }
@@ -108,10 +106,6 @@ void PostView::DelComment()
         Comment *comment = *it;
         if(comment->Id() == commentId)
         {
-//            QLabel *view = comment->View();
-//            QPushButton *del = comment->DelButton();
-//            ui->commentGroup->removeWidget(view);
-//            ui->deleteButtonGroup->removeWidget(del);
             ui->commentGroup->removeRow(pos);
             it = commentGroup.erase(it);
             break;

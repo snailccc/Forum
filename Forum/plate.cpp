@@ -42,21 +42,29 @@ Plate_View::Plate_View(QWidget *parent,QString title,int id):
 }
 
 void Plate_View::Init_View()
-{
+{   
     ui->setupUi(this);
     this->setWindowTitle(title);
     this->setFixedSize(800,600);
+    ui->plate_title->setText(title);
+
+    ui->postGroup->horizontalHeader()->setSectionResizeMode(0,QHeaderView::Stretch);
+    ui->postGroup->verticalHeader()->hide();
+    ui->postGroup->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    ui->postGroup->setContextMenuPolicy(Qt::CustomContextMenu);
+
     for(int i=0;i<postgroup.size();i++)
     {
         Post *post = postgroup[i];
-        ui->postgroup->addWidget(post,1);
+        ui->postGroup->setCellWidget(i,0,post);
         connect(post,SIGNAL(clicked(bool)),this,SLOT(postDetail()));
     }
 }
 
 void Plate_View::Add(Post *post){
     postgroup.insert(postgroup.begin(),post);
-    ui->postgroup->insertWidget(0,postgroup.front());
+    ui->postGroup->insertRow(0);
+    ui->postGroup->setCellWidget(0,0,postgroup.front());
     connect(postgroup.front(),SIGNAL(clicked(bool)),this,SLOT(postDetail()));
 }
 
@@ -64,17 +72,19 @@ void Plate_View::Delete(int postId)
 {
     vector<Post*>::iterator it=postgroup.begin();
     int pos = postgroup.size();
+    int index = 0;
     while(it!=postgroup.end())
     {
         Post *post = *it;
         if(post->ID() == postId)
         {
-            ui->postgroup->removeWidget(*it);
+            ui->postGroup->removeRow(index);
             it = postgroup.erase(it);
             break;
         }
         else
         {
+            index++;
             it++;
         }
     }
@@ -91,9 +101,7 @@ void Plate_View::on_pub_post_clicked(bool checked)
         QString p_title = pub_view->Title();
         QString p_content = pub_view->Content();
         Post *post = new Post(this,id,plateId,p_title,p_content,user->ID());
-        postgroup.insert(postgroup.begin(),post);
-        ui->postgroup->insertWidget(0,postgroup.front());
-        connect(postgroup.front(),SIGNAL(clicked(bool)),this,SLOT(postDetail()));
+        Add(post);
         update();
     }
 }
