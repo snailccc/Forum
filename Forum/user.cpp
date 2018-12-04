@@ -68,16 +68,25 @@ void User::Show_Info()
     info->show();
 }
 
-void User::Logout()
+int User::Logout()
 {
     Login();
-    loginView->show();
-    while(loginView->exec()!=QDialog::Accepted);
+    if(loginView->exec()==QDialog::Accepted)
+    {
+        loginView->close();
+        return QDialog::Accepted;
+    }
+    else if(loginView->exec()==QDialog::Rejected)
+    {
+        loginView->close();
+        return QDialog::Rejected;
+    }
 }
 
 void User::Login()
 {
     loginView = new Login_View();
+    loginView->show();
 }
 
 //////////////////////Manager//////////////////////////

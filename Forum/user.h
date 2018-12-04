@@ -44,7 +44,7 @@ public:
     int Type();
     void Show_Info();
     void Login();
-    void Logout();
+    int Logout();
     virtual void Appointing(QString userId,int plateId){}
     virtual void Removing(QString userId){}
     virtual int PlateId(){}

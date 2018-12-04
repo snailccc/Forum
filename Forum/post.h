@@ -54,7 +54,7 @@ private:
 public:
     PostView(QWidget *parent,int postId, int plateId,QString postContent,QString postTitle,QString authorId);
     void Init_View();
-    void AddComment(int commentId, QString content);
+    void AddComment(int commentId, QString content, QString authorId);
 
 private slots:
     void on_add_clicked(bool checked);

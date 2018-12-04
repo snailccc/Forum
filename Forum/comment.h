@@ -31,15 +31,16 @@ class Comment:public QObject
 {
     Q_OBJECT
 private:
-    QString content,authorId;
+    QString content, authorId, authorName;
     QTextBrowser *contentView;
     int time,id;
     Del_Button *del;
 public:
-    Comment(QWidget *parent,int commentId, QString content,QString authorId);
+    Comment(QWidget *parent,int commentId, QString content,QString authorId, QString authorName);
     int Id();
     QPushButton* DelButton();
     QString AuthorId();
+    QString AuthorName();
     QString Content();
     QTextBrowser* ContentView();
 public slots:

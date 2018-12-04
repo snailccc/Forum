@@ -1,7 +1,7 @@
 #include "comment.h"
 
-Comment::Comment(QWidget *parent,int commentId,QString content,QString authorId):
-    QObject(parent),id(commentId),content(content),authorId(authorId)
+Comment::Comment(QWidget *parent,int commentId,QString content,QString authorId, QString authorName):
+    QObject(parent),id(commentId),content(content),authorId(authorId),authorName(authorName)
 {
     contentView = new QTextBrowser();
     del = new Del_Button(0,id,"X");
@@ -40,4 +40,9 @@ QString Comment::Content()
 QTextBrowser* Comment::ContentView()
 {
     return contentView;
+}
+
+QString Comment::AuthorName()
+{
+    return authorName;
 }

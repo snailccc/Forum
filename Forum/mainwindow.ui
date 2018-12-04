@@ -32,12 +32,30 @@
       </item>
       <item>
        <widget class="QTableWidget" name="plateGroup">
+        <property name="styleSheet">
+         <string notr="true">background-color: rgb(204, 204, 204);</string>
+        </property>
         <property name="lineWidth">
          <number>0</number>
         </property>
         <property name="gridStyle">
          <enum>Qt::NoPen</enum>
         </property>
+        <attribute name="horizontalHeaderVisible">
+         <bool>false</bool>
+        </attribute>
+        <attribute name="horizontalHeaderStretchLastSection">
+         <bool>true</bool>
+        </attribute>
+        <attribute name="verticalHeaderVisible">
+         <bool>false</bool>
+        </attribute>
+        <attribute name="verticalHeaderMinimumSectionSize">
+         <number>50</number>
+        </attribute>
+        <attribute name="verticalHeaderStretchLastSection">
+         <bool>false</bool>
+        </attribute>
         <column>
          <property name="text">
           <string>板块</string>

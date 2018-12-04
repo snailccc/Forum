@@ -42,7 +42,7 @@ private:
     Pub_View *pub_view;
     int plateId;
 public:
-    Plate_View(QWidget *parent,QString title,int id);
+    Plate_View(QString title,int id,QWidget *parent);
     void Init_View();
     void Add(Post *post);
     void Delete(int postId);

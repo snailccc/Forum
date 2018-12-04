@@ -20,7 +20,7 @@ int Post::Show()
 
 void Post::AddComment(int commentId,QString content)
 {
-    view->AddComment(commentId,content);
+    view->AddComment(commentId,content, user->Name());
 }
 
 ////////////////////////////////PostView///////////////////////////////////////////////
@@ -40,6 +40,10 @@ PostView::PostView(QWidget *parent, int postId, int plateId,QString postContent,
         connect(delPost,SIGNAL(clicked(bool)),this,SLOT(DelPost()));
     }
 
+    this->commentGroup.push_back(new Comment(0,postId+commentGroup.size(),"justfortest1", "u1","fox1"));
+    this->commentGroup.push_back(new Comment(0,postId+commentGroup.size(),"justfortest1", "u2","fox2"));
+    this->commentGroup.push_back(new Comment(0,postId+commentGroup.size(),"justfortest1", "u3","fox3"));
+
     Init_View();
 }
 
@@ -56,13 +60,13 @@ void PostView::Init_View()
     ui->commentGroup->verticalHeader()->hide();
     ui->commentGroup->setEditTriggers(QAbstractItemView::NoEditTriggers);
     ui->commentGroup->setContextMenuPolicy(Qt::CustomContextMenu);
-
-    for(int i=0;i<commentGroup.size();i--)
+    ui->commentGroup->setRowCount(commentGroup.size());
+    for(int i=0;i<commentGroup.size();i++)
     {
         Comment *comment = commentGroup[i];
-        ui->commentGroup->setItem(i,0,new QTableWidgetItem(user->Name()));
+        ui->commentGroup->setItem(i,0,new QTableWidgetItem(comment->AuthorName()));
         ui->commentGroup->setCellWidget(i,1,comment->ContentView());
-        if(comment->AuthorId()==authorId)
+        if(comment->AuthorId()==user->ID())
         {
             ui->commentGroup->setCellWidget(i,2,comment->DelButton());
             connect(comment->DelButton(),SIGNAL(clicked(bool)),this,SLOT(DelComment()));
@@ -71,15 +75,16 @@ void PostView::Init_View()
     }
 }
 
-void PostView::AddComment(int commentId,QString content)
+void PostView::AddComment(int commentId,QString content,QString authorId)
 {
-    Comment *comment = new Comment(this,commentId,content,user->ID());
+    Comment *comment = new Comment(this,commentId,content,authorId,user->Name());
     commentGroup.insert(commentGroup.begin(),comment);
     ui->commentGroup->insertRow(0);
     ui->commentGroup->setItem(0,0,new QTableWidgetItem(user->Name()));
     ui->commentGroup->setCellWidget(0,1,comment->ContentView());
     ui->commentGroup->setCellWidget(0,2,comment->DelButton());
     connect(comment->DelButton(),SIGNAL(clicked(bool)),this,SLOT(DelComment()));
+
 }
 
 void PostView::on_add_clicked(bool checked)
@@ -90,7 +95,7 @@ void PostView::on_add_clicked(bool checked)
     {
         QString c_content = pubComment->Content();
         int id = postId*1000 + commentGroup.size();
-        AddComment(id,c_content);
+        AddComment(id, c_content, user->Name());
         update();
     }
 }

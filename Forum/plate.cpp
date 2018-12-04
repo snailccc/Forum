@@ -5,7 +5,8 @@ Plate::Plate(QWidget *parent, int id, QString title):
     QPushButton(parent),id(id),title(title)
 {
     this->setText(title);
-    this->view = new Plate_View(this,title,id);
+    this->view = new Plate_View(title,id,0);
+    this->setStyleSheet("background-color: rgb(170, 0, 255);");
 }
 
 void Plate::AddPost(Post *post)
@@ -34,7 +35,7 @@ int Plate::Id()
 //}
 
 //////////////////////Plate_View/////////////////////
-Plate_View::Plate_View(QWidget *parent,QString title,int id):
+Plate_View::Plate_View(QString title,int id, QWidget *parent):
     QDialog(parent),title(title),plateId(id),
     ui(new Ui::Plate)
 {

@@ -98,9 +98,9 @@ void Login_View::login(){
 
     QMessageBox::warning(this,tr("warning"),tr("user name or user pwd error！"),QMessageBox::Yes);
     // 清空内容和指定焦点
-    userLineEdit->clear();
+//    userLineEdit->clear();
     pwdLineEdit->clear();
-    userLineEdit->setFocus();
+//    userLineEdit->setFocus();
 }
 
 QString Login_View::Pwd(QString id)

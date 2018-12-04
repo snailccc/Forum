@@ -41,11 +41,13 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
     this->setWindowTitle(QString("Fox-Study-BBS"));
 
-    Plate *test_post1 = new Plate(this, 101, "板块  1");
-    Plate *test_post2 = new Plate(this, 102, "板块  2");
+    Plate *plate1 = new Plate(this, 101, "继承");
+    Plate *plate2 = new Plate(this, 102, "封装");
+    Plate *plate3 = new Plate(this, 103, "多态");
 
-    plates.push_back(test_post1);
-    plates.push_back(test_post2);
+    plates.push_back(plate1);
+    plates.push_back(plate2);
+    plates.push_back(plate3);
 
     Initial_Action();
     Initial_Background();
@@ -53,12 +55,15 @@ MainWindow::MainWindow(QWidget *parent) :
 //    view = new QQuickView();
 
     //////////////test/////////////////////
-    test_post1->AddPost(new Post(0,101001,test_post1->Id(),"帖子1","fox test1","u1"));
-    test_post1->AddPost(new Post(0,101002,test_post1->Id(),"帖子2","fox test2","u2"));
-    test_post1->AddPost(new Post(0,101003,test_post1->Id(),"帖子3","fox test3","u3"));
-    test_post2->AddPost(new Post(0,102004,test_post2->Id(),"帖子4","fox test4","u1"));
-    test_post2->AddPost(new Post(0,102005,test_post2->Id(),"帖子5","fox test5","u2"));
-    test_post2->AddPost(new Post(0,102006,test_post2->Id(),"帖子6","fox test6","u3"));
+    plate1->AddPost(new Post(0,101001,plate1->Id(),"帖子3","fox test1","u1"));
+    plate1->AddPost(new Post(0,101002,plate1->Id(),"帖子2","fox test2","u2"));
+    plate1->AddPost(new Post(0,101003,plate1->Id(),"帖子1","fox test3","u3"));
+    plate2->AddPost(new Post(0,102001,plate2->Id(),"帖子6","fox test4","u1"));
+    plate2->AddPost(new Post(0,102002,plate2->Id(),"帖子5","fox test5","u2"));
+    plate2->AddPost(new Post(0,102003,plate2->Id(),"帖子4","fox test6","u3"));
+    plate3->AddPost(new Post(0,102001,plate3->Id(),"帖子9","fox test4","u1"));
+    plate3->AddPost(new Post(0,102002,plate3->Id(),"帖子8","fox test5","u2"));
+    plate3->AddPost(new Post(0,102003,plate3->Id(),"帖子7","fox test6","u3"));
 }
 
 void MainWindow::Initial_Background()
@@ -79,12 +84,13 @@ void MainWindow::Initial_Background()
     ui->plateGroup->horizontalHeader()->setSectionResizeMode(0,QHeaderView::Stretch);
     ui->plateGroup->setEditTriggers(QAbstractItemView::NoEditTriggers);
     ui->plateGroup->verticalHeader()->hide();
+    ui->plateGroup->verticalHeader()->setDefaultSectionSize(50);
     int n = plates.size();
-    ui->plateGroup->setRowCount(n*2);
+    ui->plateGroup->setRowCount(n*2+1);
     for(int i=0;i<n;i++)
     {
         Plate *plate = plates[i];
-        ui->plateGroup->setCellWidget(i,0,plate);
+        ui->plateGroup->setCellWidget(i*2+1,0,plate);
 //        ui->plateGroup->setItem(i,0,new QTableWidgetItem());
         connect(plate,SIGNAL(clicked(bool)),this,SLOT(Create_Plate_View()));
     }
@@ -155,9 +161,16 @@ void MainWindow::Logout()
 {
     this->hide();
     int old_type = user->Type();
-    user->Logout();
-    this->Change_Background(old_type);
-    this->show();
+    if(user->Logout()==QDialog::Accepted)
+    {
+        this->Change_Background(old_type);
+        this->show();
+    }
+    else
+    {
+        this->close();
+    }
+
 }
 
 void MainWindow::Appointing()
