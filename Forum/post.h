@@ -36,7 +36,7 @@ public:
     Q_INVOKABLE int ID()const{return id;}
     Q_INVOKABLE QString Content()const{return content;}
     int Show();
-    void AddComment(int commentId, QString content);
+    void AddComment(int commentId, QString content, QString authorId,QString authorName);
 
 };
 
@@ -51,10 +51,11 @@ private:
     QString postContent,postTitle,authorId;
     int postId,plateId;
     PubComment *pubComment;
+    QPushButton *delPost;
 public:
     PostView(QWidget *parent,int postId, int plateId,QString postContent,QString postTitle,QString authorId);
     void Init_View();
-    void AddComment(int commentId, QString content, QString authorId);
+    void AddComment(int commentId, QString content, QString authorId,QString authorName);
 
 private slots:
     void on_add_clicked(bool checked);

@@ -10,6 +10,7 @@ Post::Post(QWidget *parent, int id, int plateId,QString title, QString content, 
 
 int Post::Show()
 {
+    this->view->Init_View();
     this->view->show();
     if(view->exec()==2)
     {
@@ -18,9 +19,9 @@ int Post::Show()
     return 0;
 }
 
-void Post::AddComment(int commentId,QString content)
+void Post::AddComment(int commentId,QString content,QString authorId, QString authorName)
 {
-    view->AddComment(commentId,content, user->Name());
+    view->AddComment(commentId,content, authorId, authorName);
 }
 
 ////////////////////////////////PostView///////////////////////////////////////////////
@@ -31,27 +32,15 @@ PostView::PostView(QWidget *parent, int postId, int plateId,QString postContent,
     ui->setupUi(this);
     this->setWindowTitle(postTitle);
     ui->post_content->setText(this->postContent);
-    if(user->ID() == authorId ||
-            user->Type()==MANAGER_USER ||
-            (user->Type()==HOST_USER && user->PlateId()==this->plateId))
-    {
-        QPushButton *delPost = new QPushButton("删除该贴", this);
-        delPost->setGeometry(340,120,100,30);
-        connect(delPost,SIGNAL(clicked(bool)),this,SLOT(DelPost()));
-    }
+    delPost = new QPushButton("删除该贴", this);
+    delPost->setGeometry(340,120,100,30);
+    connect(delPost,SIGNAL(clicked(bool)),this,SLOT(DelPost()));
+
 
     this->commentGroup.push_back(new Comment(0,postId+commentGroup.size(),"justfortest1", "u1","fox1"));
     this->commentGroup.push_back(new Comment(0,postId+commentGroup.size(),"justfortest1", "u2","fox2"));
     this->commentGroup.push_back(new Comment(0,postId+commentGroup.size(),"justfortest1", "u3","fox3"));
 
-    Init_View();
-}
-
-void PostView::Init_View()
-{
-    this->setWindowTitle(postTitle);
-
-//    ui->commentGroup->setSettionResizeMode(0,QHeaderView::Fixed);
     ui->commentGroup->horizontalHeader()->setSectionResizeMode(0,QHeaderView::Fixed);
     ui->commentGroup->setColumnWidth(0,100);
     ui->commentGroup->horizontalHeader()->setSectionResizeMode(1,QHeaderView::Stretch);
@@ -60,6 +49,26 @@ void PostView::Init_View()
     ui->commentGroup->verticalHeader()->hide();
     ui->commentGroup->setEditTriggers(QAbstractItemView::NoEditTriggers);
     ui->commentGroup->setContextMenuPolicy(Qt::CustomContextMenu);
+
+
+}
+
+void PostView::Init_View()
+{
+    if(!(user->ID() == authorId ||
+            user->Type()==MANAGER_USER ||
+            (user->Type()==HOST_USER && user->PlateId()==this->plateId)))
+    {
+        delPost->hide();
+    }
+    else
+    {
+        delPost->show();
+    }
+
+//    ui->commentGroup->setSettionResizeMode(0,QHeaderView::Fixed);
+
+    ui->commentGroup->clearContents();
     ui->commentGroup->setRowCount(commentGroup.size());
     for(int i=0;i<commentGroup.size();i++)
     {
@@ -75,15 +84,19 @@ void PostView::Init_View()
     }
 }
 
-void PostView::AddComment(int commentId,QString content,QString authorId)
+void PostView::AddComment(int commentId,QString content,QString authorId, QString authorName)
 {
-    Comment *comment = new Comment(this,commentId,content,authorId,user->Name());
+    Comment *comment = new Comment(this,commentId,content,authorId,authorName);
     commentGroup.insert(commentGroup.begin(),comment);
     ui->commentGroup->insertRow(0);
     ui->commentGroup->setItem(0,0,new QTableWidgetItem(user->Name()));
     ui->commentGroup->setCellWidget(0,1,comment->ContentView());
-    ui->commentGroup->setCellWidget(0,2,comment->DelButton());
-    connect(comment->DelButton(),SIGNAL(clicked(bool)),this,SLOT(DelComment()));
+    if(comment->AuthorId()==user->ID())
+    {
+        ui->commentGroup->setCellWidget(0,2,comment->DelButton());
+        connect(comment->DelButton(),SIGNAL(clicked(bool)),this,SLOT(DelComment()));
+    }
+
 
 }
 
@@ -95,7 +108,7 @@ void PostView::on_add_clicked(bool checked)
     {
         QString c_content = pubComment->Content();
         int id = postId*1000 + commentGroup.size();
-        AddComment(id, c_content, user->Name());
+        AddComment(id, c_content, user->ID(),user->Name());
         update();
     }
 }
