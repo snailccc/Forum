@@ -30,6 +30,8 @@ public:
     void Init_View();
     void Add(Post *post);
     void Delete(int postId);
+    friend vector<Post*>& operator<<(vector<Post*>& group, QString db);
+    friend Post*& operator>>(Post*& post1,QSqlDatabase db);
 private slots:
     void on_pub_post_clicked(bool checked);
     void postDetail();

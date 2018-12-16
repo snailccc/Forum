@@ -47,4 +47,6 @@ FORMS    += mainwindow.ui \
     post.ui \
     postMange.ui \
     public.ui \
-    user_info.ui
+    user_info.ui \
+    login.ui \
+    signin.ui

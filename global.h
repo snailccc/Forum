@@ -24,5 +24,6 @@ extern QSqlDatabase db;
 #define COMMENT_USER 1
 #define HOST_USER 2
 #define MANAGER 3
+#define ANONYMOUS 4
 
 #endif // GLOBAL_H

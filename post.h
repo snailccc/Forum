@@ -57,7 +57,8 @@ public:
     void Init_View();
     void AddComment(QString commentId, QString content, QString authorId,QString authorName, int postId);
     int ComentSize(){return ui->commentGroup->rowCount();}
-
+    friend vector<Comment*>& operator<<(vector<Comment*>& group, QString op);
+    friend Comment*& operator>>(Comment*& comment, QSqlDatabase);
 private slots:
     void on_add_clicked(bool checked);
     void DelPost();

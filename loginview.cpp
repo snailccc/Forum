@@ -3,58 +3,18 @@
 map<QString, Base>userGroup;
 
 LoginView::LoginView(QWidget *parent):
-    QDialog(parent)
+    QDialog(parent),ui(new Ui::Login)
 {
-
-    // 创建一个userLabel 这里的this表示父布局是自己
-    userLabel = new QLabel(this);
-    // 移动到某个位置
-    userLabel->move(50,80);
-    // 设置显示的文本
-    userLabel->setText(tr("user id:"));
-
-    // 登录输入框
-    userLineEdit = new QLineEdit(this);
-    userLineEdit->move(140,80);
-    // 设置hint效果
-    userLineEdit->setPlaceholderText(tr("please input user name"));
-
-    // 创建一个userLabel 这里的this表示父布局是自己
-    pwdLabel = new QLabel(this);
-    // 移动到某个位置
-    pwdLabel->move(50,130);
-    // 设置显示的文本
-    pwdLabel->setText(tr("user pwd:"));
-
-    // 登录输入框
-    pwdLineEdit = new QLineEdit(this);
-    pwdLineEdit->move(140,130);
-    // 设置hint效果
-    pwdLineEdit->setPlaceholderText(tr("please input user pwd"));
-    pwdLineEdit->setEchoMode(QLineEdit::Password);
-
-
-    loginBtn = new QPushButton(this);
-    loginBtn->move(50,200);
-    loginBtn->setText(tr("login"));
-
-
-    exitBtn = new QPushButton(this);
-    exitBtn->move(210,200);
-    exitBtn->setText(tr("exit"));
-
-
-    connect(loginBtn,&QPushButton::clicked,this,&LoginView::login);
-    // close 是QWidget里面的函数表示用来关闭控件
-    connect(exitBtn,&QPushButton::clicked,this,&LoginView::Exit);
-
+    ui->setupUi(this);
+    connect(ui->SignIn,&QPushButton::clicked,this,&LoginView::login);
+    connect(ui->Anonmous,&QPushButton::clicked,this,&LoginView::AnonmousLogin);
+    connect(ui->SignUp,&QPushButton::clicked,this,&LoginView::on_SignUp_clicked);
 }
-
 
 void LoginView::login(){
     // 判断登录的用户名和密码是否正确
-    QString id=userLineEdit->text();
-    QString password = pwdLineEdit->text();
+    QString id=ui->Id->text();
+    QString password = ui->pwd->text();
 
     if(userGroup.count(id)) {
         Base base = userGroup[id];
@@ -77,7 +37,7 @@ void LoginView::login(){
         }
     }
     QMessageBox::warning(0,tr("warning"),tr("user id or pwd error"));
-    pwdLineEdit->clear();
+    ui->pwd->clear();
 }
 
 QString LoginView::Pwd(QString id)
@@ -85,7 +45,65 @@ QString LoginView::Pwd(QString id)
     return userGroup[id].pwd;
 }
 
-void LoginView::Exit()
+void LoginView::AnonmousLogin()
 {
-    exit(0);
+    Base base("anonymous","","unknow",ANONYMOUS);
+    user = new Anonymous(base);
+    accept();
+    return;
+}
+
+void LoginView::on_SignUp_clicked(bool checked)
+{
+    SignInView *signin = new SignInView();
+    if(signin->exec()==QDialog::Accepted)
+    {
+
+    }
+}
+
+
+//////////////////////////////////SignInView////////////////////////////
+SignInView::SignInView(QWidget *parent):
+    QDialog (parent),ui(new Ui::SignIn)
+{
+    ui->setupUi(this);
+    connect(ui->ok,&QPushButton::clicked,this,&SignInView::on_ok_clicked);
+}
+
+
+void SignInView::on_ok_clicked(bool checked)
+{
+    QSqlQuery query(db);
+    QString id = ui->Id->text();
+    if(userGroup.count(id))
+    {
+
+        QMessageBox::warning(0,tr("warning"),tr("user id has existed"));
+        return;
+    }
+    QString username = ui->username->text();
+    QString pwd = ui->pwd->text();
+    query.prepare("insert into user (id,pwd,name,type) values (?,?,?,?)");
+    query.addBindValue(id);
+    query.addBindValue(pwd);
+    query.addBindValue(username);
+    query.addBindValue(COMMENT_USER);
+    if(!query.exec())
+    {
+        QMessageBox::warning(0,QObject::tr("database connect error"),QObject::tr("please check your internet connect and database"));
+        exit(0);
+    }
+    else
+    {
+        QMessageBox::warning(0,QObject::tr("Sign up"),QObject::tr("Successful"));
+        userGroup[id] = Base(id, pwd, username, COMMENT_USER);
+        accept();
+    }
+
+}
+
+SignInView::~SignInView()
+{
+
 }

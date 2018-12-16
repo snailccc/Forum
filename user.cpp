@@ -41,12 +41,13 @@ void User::Login()
 int User::Logout()
 {
     Login();
-    if(loginView->exec()==QDialog::Accepted)
+    int res = loginView->exec();
+    if(res==QDialog::Accepted)
     {
         loginView->close();
         return QDialog::Accepted;
     }
-    else if(loginView->exec()==QDialog::Rejected)
+    else if(res==QDialog::Rejected)
     {
         loginView->close();
         return QDialog::Rejected;
@@ -77,7 +78,6 @@ void User::ShowInfo()
 {
     info = new User_Info_View(userName,id);
     info->show();
-//    delete info;
 }
 
 void User::Appointing(QString userId, int plateId)
@@ -101,16 +101,39 @@ void Manager::Appointing(QString userId, int plateId)
 {
     userGroup[userId].type = HOST_USER;
     userGroup[userId].plateId = plateId;
-    QSqlQuery query(db);
-    query.exec("update user set type="+QString::number(HOST_USER)+" where id="+userId);
+    Base base = userGroup[userId];
+    base>>db;
 
 }
 
 void Manager::Removing(QString userId)
 {
     userGroup[userId].type = COMMENT_USER;
+    Base base = userGroup[userId];
+    base>>db;
+}
+
+Base& operator>> (Base& base, QSqlDatabase db)
+{
     QSqlQuery query(db);
-    query.exec("update user set type="+QString::number(COMMENT_USER)+" where id="+userId);
+    if(base.type==HOST_USER)
+    {
+        query.prepare("update user set type=?,plateId=? where id=?");
+        query.addBindValue(QString::number(base.type));
+        query.addBindValue(base.plateId);
+    }
+    else if(base.type==COMMENT_USER)
+    {
+        query.prepare("update user set type=? where id=?");
+        query.addBindValue(QString::number(base.type));
+    }
+    query.addBindValue(base.id);
+    if(!query.exec())
+    {
+        QMessageBox::warning(0,QObject::tr("database connect error"),QObject::tr("please check your internet connect and database"));
+        exit(0);
+    }
+    return base;
 }
 
 
@@ -125,6 +148,14 @@ int Hoster::PlateId()
 {
     return plateId;
 }
+
+//////////////////////Hoster//////////////////////////
+Anonymous::Anonymous(Base base):
+    User (base)
+{
+    qDebug()<<"Anonymous"<<endl;
+}
+
 
 //////////////////////////User_Info_View///////////////////////////////
 User_Info_View::User_Info_View(QString username, QString id, QWidget *parent):
@@ -146,4 +177,9 @@ User_Info_View::User_Info_View(QString username, QString id, QWidget *parent):
     {
         ui->type->setText("Manager");
     }
+    else if(type == ANONYMOUS)
+    {
+        ui->type->setText("Anonymous");
+    }
 }
+

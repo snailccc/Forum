@@ -6,10 +6,12 @@
 #include <QString>
 #include <QObject>
 #include <QWidget>
+#include <QSqlDatabase>
 
 class User_Info_View;
 class User;
 class Base;
+class Anonymous;
 //////////////////////////Base////////////////////
 class Base
 {
@@ -20,7 +22,6 @@ public:
     Base(QString id, QString pwd, QString username, int type, int plateId=0);
     Base(){}
 };
-
 
 //////////////////////////User_Info_View////////////////////
 class User_Info_View:public QDialog
@@ -64,6 +65,8 @@ class Manager:public User
 private:
 public:
     Manager(Base base);
+//    friend Base& operator >>(Base& base, QSqlDatabase db);
+    friend Base& operator >>(Base& base, QSqlDatabase db);
     virtual void Appointing(QString userId,int plateId);
     virtual void Removing(QString userId);
 };
@@ -74,8 +77,18 @@ class Hoster:public User
 private:
     int plateId;
 public:
-    Hoster(Base);
+    Hoster(Base base);
     int PlateId();
+};
+
+///////////////////Anonymous///////////////////////////
+class Anonymous:public User
+{
+private:
+    QString id, userName, pwd;
+    int type;
+public:
+    Anonymous(Base base);
 };
 
 #endif // USER_H

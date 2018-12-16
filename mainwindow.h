@@ -30,7 +30,7 @@ private:
     Ui::appoint *ui;
     QString userId, plateId;
 public:
-    AppointView(QWidget *parent=0, int type=0);
+    AppointView(int type=0, QWidget *parent=0);
 //    void Appointing();
 //    void Removing();
     QString UserId();
@@ -45,7 +45,7 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 private:
     QGridLayout *layout;
-    vector <Plate*> plates;
+    vector<Plate*> plates;
     QWidget *background;
     QToolBar *toolbar;
     QAction *logout,*exit,*account_info,*appoint,*remove;
@@ -54,6 +54,7 @@ private:
 
 public:
     explicit MainWindow(QWidget *parent=0);
+    friend vector<Plate*>& operator <<(vector<Plate*>& plateGroup, QSqlDatabase db);
     void Initial_Background();
     void Change_Background(int old_type);
     void Initial_Action();

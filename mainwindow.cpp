@@ -1,7 +1,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 /////////////////AppointView///////////////////////////////
-AppointView::AppointView(QWidget *parent, int type):
+AppointView::AppointView(int type, QWidget *parent):
     QDialog(parent),ui(new Ui::appoint)
 {
     ui->setupUi(this);
@@ -31,16 +31,6 @@ QString AppointView::PlateId()
     plateId = ui->plateId->text();
     return plateId;
 }
-
-//void AppointView::Appointing()
-//{
-
-//}
-
-//void AppointView::Removing()
-//{
-
-//}
 
 void AppointView::on_buttonBox_accepted()
 {
@@ -79,15 +69,7 @@ void MainWindow::Initial_Background()
     ui->plateGroup->verticalHeader()->hide();
     ui->plateGroup->verticalHeader()->setDefaultSectionSize(50);
 
-    QSqlQuery query(db);
-    query.exec("select * from plate");
-    while(query.next())
-    {
-        int id = query.value(0).toInt();
-        QString title = query.value(1).toString();
-        plates.push_back(new Plate(id, title));
-    }
-
+    plates<<db ;
 
     int n = plates.size();
     ui->plateGroup->setRowCount(n*2+1);
@@ -175,7 +157,7 @@ void MainWindow::Appointing()
 
 void MainWindow::Removing()
 {
-    manager_View =  new AppointView;
+    manager_View =  new AppointView(1);
     manager_View->show();
     if(manager_View->exec()==QDialog::Accepted)
     {
@@ -184,6 +166,23 @@ void MainWindow::Removing()
     }
 }
 
+vector<Plate*>& operator <<(vector<Plate*>&plates, QSqlDatabase db)
+{
+    QSqlQuery query(db);
+    if(!query.exec("select * from plates"))
+    {
+        QMessageBox::warning(0,QObject::tr("database connect error"),QObject::tr("please check your internet connect and database"));
+        exit(0);
+    }
+
+    while(query.next())
+    {
+        int id = query.value(0).toInt();
+        QString title = query.value(1).toString();
+        plates.push_back(new Plate(id, title));
+    }
+    return plates;
+}
 
 MainWindow::~MainWindow()
 {

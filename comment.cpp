@@ -53,3 +53,8 @@ QString Comment::AuthorName()
 {
     return authorName;
 }
+
+int Comment::PostId()
+{
+    return postId;
+}

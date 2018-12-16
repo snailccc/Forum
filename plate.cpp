@@ -8,16 +8,6 @@ Plate::Plate(int id, QString title,QWidget *parent):
     this->setStyleSheet("background-color: rgb(170, 0, 255);");
 }
 
-//void Plate::AddPost(Post *post)
-//{
-//   plateview->Add(post);
-//}
-
-//void Plate::DeletePost(int id)
-//{
-//    plateview->Delete(id);
-//}
-
 void Plate::Show()
 {
     this->plateview = new PlateView(title,id,0);
@@ -49,16 +39,8 @@ PlateView::PlateView(QString title,int id, QWidget *parent):
 
 void PlateView::Init_View()
 {
-    QSqlQuery query(db);
-    query.exec("select * from post where plateId="+QString::number(plateId));
-    while(query.next())
-    {
-        int postId1 = query.value(0).toInt();
-        QString title1 = query.value(1).toString();
-        QString content1 = query.value(2).toString();
-        QString authorId1 = query.value(3).toString();
-        postgroup.insert(postgroup.begin(),new Post(postId1,plateId, title1, content1,authorId1));
-    }
+    QString op = "select * from post where plateId="+QString::number(plateId);
+    postgroup<<op;
     int n = postgroup.size();
     ui->postGroup->setRowCount(n);
     for(int i=0;i<n;i++)
@@ -75,15 +57,7 @@ void PlateView::Add(Post *post){
     ui->postGroup->setCellWidget(0,0,postgroup.front());
     connect(postgroup.front(),SIGNAL(clicked(bool)),this,SLOT(postDetail()));
     update();
-
-    QSqlQuery query(db);
-    QString op = "insert into post values (";
-    op += "\"" + QString::number(post->ID()) + "\",";
-    op += "\"" + post->Title() + "\",";
-    op += "\"" + post->Content() + "\",";
-    op += "\"" + post->AuthorId() + "\",";
-    op += "\"" + QString::number(post->PlateId()) + "\")";
-    query.exec(op);
+    post>>db;
 }
 
 void PlateView::Delete(int postId)
@@ -111,12 +85,25 @@ void PlateView::Delete(int postId)
     update();
 
     QSqlQuery query(db);
-    query.exec("delete from post where id="+QString::number(postId));
-    query.exec("delete from comments where postId="+QString::number(postId));
+    if(!query.exec("delete from post where id="+QString::number(postId)))
+    {
+        QMessageBox::warning(0,QObject::tr("database connect error"),QObject::tr("please check your internet connect and database"));
+        exit(0);
+    }
+    if(!query.exec("delete from comments where postId="+QString::number(postId)))
+    {
+        QMessageBox::warning(0,QObject::tr("database connect error"),QObject::tr("please check your internet connect and database"));
+        exit(0);
+    }
 }
 
 void PlateView::on_pub_post_clicked(bool checked)
 {
+    if(user->Type()==ANONYMOUS)
+    {
+        QMessageBox::warning(0,tr("warning"),tr("please login first"));
+        return;
+    }
     pub_view = new PubView(this);
     pub_view->show();
     if(pub_view->exec()==QDialog::Accepted)
@@ -138,6 +125,43 @@ void PlateView::postDetail()
     {
         Delete(postId);
     }
+}
+
+vector<Post*>& operator<<(vector<Post*>& group, QString op)
+{
+    QSqlQuery query(db);
+    if(!query.exec(op))
+    {
+        QMessageBox::warning(0,QObject::tr("database connect error"),QObject::tr("please check your internet connect and database"));
+        exit(0);
+    }
+    while(query.next())
+    {
+        int postId1 = query.value(0).toInt();
+        QString title1 = query.value(1).toString();
+        QString content1 = query.value(2).toString();
+        QString authorId1 = query.value(3).toString();
+        int plateId1 = query.value(4).toInt();
+        group.insert(group.begin(),new Post(postId1,plateId1, title1, content1,authorId1));
+    }
+    return group;
+}
+
+Post*& operator>>(Post*& post1, QSqlDatabase db)
+{
+    QSqlQuery query(db);
+    query.prepare("insert into post (id,title,content,authorId,plateId) values (?,?,?,?,?)");
+    query.addBindValue(post1->ID());
+    query.addBindValue(post1->Title());
+    query.addBindValue(post1->Content());
+    query.addBindValue(post1->AuthorId());
+    query.addBindValue(post1->PlateId());
+    if(!query.exec())
+    {
+        QMessageBox::warning(0,QObject::tr("database connect error"),QObject::tr("please check your internet connect and database"));
+        exit(0);
+    }
+    return post1;
 }
 
 //////////////////////PubView/////////////////////

@@ -6,6 +6,30 @@ User *user = NULL;
 QSqlDatabase db = QSqlDatabase::addDatabase("QMYSQL");
 extern map<QString, Base> userGroup;
 
+map<QString, Base>& operator<<(map<QString, Base>&group, QSqlDatabase db)
+{
+    QSqlQuery query(db);
+    query.exec("select * from user");
+    while(query.next())
+    {
+        QString id = query.value(0).toString();
+        QString pwd = query.value(1).toString();
+        QString username = query.value(2).toString();
+        int type = query.value(3).toInt();
+        if(type==HOST_USER)
+        {
+            int plateId = query.value(4).toInt();
+            userGroup[id] = Base(id, pwd, username, type, plateId);
+        }
+        else
+        {
+            userGroup[id] = Base(id, pwd, username, type);
+        }
+
+    }
+    return group;
+}
+
 int main(int argc, char *argv[])
 {
     QTextCodec::codecForName("UTF-8");
@@ -24,26 +48,7 @@ int main(int argc, char *argv[])
     else
     {
         qDebug()<<"db connected"<<endl;
-        QSqlQuery query(db);
-        query.exec("select * from user");
-        while(query.next())
-        {
-            QString id = query.value(0).toString();
-            QString pwd = query.value(1).toString();
-            QString username = query.value(2).toString();
-            int type = query.value(3).toInt();
-            if(type==HOST_USER)
-            {
-                int plateId = query.value(4).toInt();
-                userGroup[id] = Base(id, pwd, username, type, plateId);
-            }
-            else
-            {
-                userGroup[id] = Base(id, pwd, username, type);
-            }
-
-        }
-
+        userGroup<<db;
     }
 
 

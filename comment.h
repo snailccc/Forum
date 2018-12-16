@@ -36,6 +36,7 @@ private:
     Del_Button *del;
 public:
     Comment(QString commentId, QString content,QString authorId, QString authorName, int postId);
+    int PostId();
     QString Id();
     QPushButton* DelButton();
     QString AuthorId();

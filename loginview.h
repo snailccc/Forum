@@ -8,35 +8,40 @@
 #include <QFile>
 #include <QUrl>
 
-
+#include "ui_login.h"
+#include "ui_signin.h"
 
 // 类的前置申明
 class QLabel;
 class QLineEdit;
 class QPushButton;
+class SignInView;
 
 class LoginView: public QDialog
 {
 public:
     explicit LoginView(QWidget *parent=0);
     virtual ~LoginView(){}
-
 private:
-    QLabel *userLabel;
-    QLabel *pwdLabel;
-
-    QLineEdit *userLineEdit;
-    QLineEdit *pwdLineEdit;
-
-    QPushButton *loginBtn;
-    QPushButton *exitBtn;
-
+    Ui::Login *ui;
 public:
     QString Pwd(QString id);
 private slots:// 声明槽函数
     void login();
-    void Exit();
+    void AnonmousLogin();
+    void SignUp();
+    void on_SignUp_clicked(bool checked);
+};
 
+class SignInView:public QDialog
+{
+private:
+    Ui::SignIn *ui;
+public:
+    explicit SignInView(QWidget *parent=0);
+    ~SignInView();
+private slots:
+    void on_ok_clicked(bool checked);
 };
 
 #endif // LOGINVIEW_H

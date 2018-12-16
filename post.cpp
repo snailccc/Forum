@@ -61,17 +61,8 @@ void PostView::Init_View()
         }
     }
 
-    QSqlQuery query(db);
-    query.exec("select * from comments where postId="+QString::number(postId));
-    while(query.next())
-    {
-        QString commentId = query.value(0).toString();
-        QString content = query.value(1).toString();
-        QString authorId = query.value(2).toString();
-        QString authorName = query.value(3).toString();
-        int postId = query.value(4).toInt();
-        commentGroup.insert(commentGroup.begin(),new Comment(commentId,content,authorId,authorName,postId));
-    }
+    QString op = "select * from comments where postId="+QString::number(postId);
+    commentGroup<<op;
 
     int n = commentGroup.size();
     ui->commentGroup->setRowCount(n);
@@ -102,18 +93,16 @@ void PostView::AddComment(QString commentId, QString content, QString authorId, 
         connect(comment->DelButton(),SIGNAL(clicked(bool)),this,SLOT(DelComment()));
     }
 
-    QSqlQuery query(db);
-    QString op = "insert into comments values (";
-    op += "\"" + commentId + "\",";
-    op += "\"" + content + "\",";
-    op += "\"" + authorId + "\",";
-    op += "\"" + authorName + "\",";
-    op += "\"" + QString::number(postId1) + "\")";
-    query.exec(op);
+    comment>>db;
 }
 
 void PostView::on_add_clicked(bool checked)
 {
+    if(user->Type()==ANONYMOUS)
+    {
+        QMessageBox::warning(0,tr("warning"),tr("please login first"));
+        return;
+    }
     pubComment = new PubComment(this);
     pubComment->show();
     if(pubComment->exec() == QDialog::Accepted)
@@ -150,7 +139,13 @@ void PostView::DelComment()
     }
 
     QSqlQuery query(db);
-    query.exec("delete from comments where id="+commentId);
+    query.prepare("DELETE from comments where id=?");
+    query.addBindValue(commentId);
+    if(!query.exec())
+    {
+        QMessageBox::warning(0,QObject::tr("database connect error"),QObject::tr("please check your internet connect and database"));
+        exit(0);
+    }
 
     update();
 }
@@ -178,6 +173,42 @@ void PostView::DelPost()
     QMessageBox::warning(this,tr("warning"),tr("删除失败"),QMessageBox::Yes);
 }
 
+vector<Comment*>& operator<< (vector<Comment*>& group, QString op)
+{
+    QSqlQuery query(db);
+    if(!query.exec(op))
+    {
+        QMessageBox::warning(0,QObject::tr("database connect error"),QObject::tr("please check your internet connect and database"));
+        exit(0);
+    }
+    while(query.next())
+    {
+        QString commentId = query.value(0).toString();
+        QString content = query.value(1).toString();
+        QString authorId = query.value(2).toString();
+        QString authorName = query.value(3).toString();
+        int postId = query.value(4).toInt();
+        group.insert(group.begin(),new Comment(commentId,content,authorId,authorName,postId));
+    }
+    return group;
+}
+
+Comment*& operator>> (Comment*& comment, QSqlDatabase db)
+{
+    QSqlQuery query(db);
+    query.prepare("insert into comments (id,content,authorId,authorName,postId) values (?,?,?,?,?)");
+    query.addBindValue(comment->Id());
+    query.addBindValue(comment->Content());
+    query.addBindValue(comment->AuthorId());
+    query.addBindValue(comment->AuthorName());
+    query.addBindValue(comment->PostId());
+    if(!query.exec())
+    {
+        QMessageBox::warning(0,QObject::tr("database connect error"),QObject::tr("please check your internet connect and database"));
+        exit(0);
+    }
+    return comment;
+}
 
 ////////////////////////////////PubComment////////////////////////////////////////
 PubComment::PubComment(QWidget *parent):
