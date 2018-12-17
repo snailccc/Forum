@@ -61,6 +61,8 @@ void PostView::Init_View()
         }
     }
 
+//    ui->commentGroup->horizontalHeader()->setSectionResizeMode(QHeaderView::Fixed);
+    ui->commentGroup->setColumnWidth(2,50);
     QString op = "select * from comments where postId="+QString::number(postId);
     commentGroup<<op;
 

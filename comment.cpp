@@ -13,6 +13,8 @@ Comment::Comment(QString commentId,QString content,QString authorId, QString aut
 {
     contentView = new QTextBrowser();
     del = new Del_Button(id,"X");
+    del->setFixedSize(50,36);
+//    qDebug()<<1<<endl;
     contentView->setText(content);
     QFont font;
     font.setPointSize(11);

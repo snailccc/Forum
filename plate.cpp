@@ -5,7 +5,7 @@ Plate::Plate(int id, QString title,QWidget *parent):
     QPushButton (parent),id(id),title(title)
 {
     this->setText(title);
-    this->setStyleSheet("background-color: rgb(170, 0, 255);");
+    this->setStyleSheet("background-color: rgb(196, 226, 216);");
 }
 
 void Plate::Show()
@@ -26,7 +26,6 @@ PlateView::PlateView(QString title,int id, QWidget *parent):
 {
     ui->setupUi(this);
     this->setWindowTitle(title);
-    this->setFixedSize(800,600);
     ui->plate_title->setText(title);
 
     ui->postGroup->horizontalHeader()->setSectionResizeMode(0,QHeaderView::Stretch);
