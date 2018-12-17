@@ -6,6 +6,7 @@ LoginView::LoginView(QWidget *parent):
     QDialog(parent),ui(new Ui::Login)
 {
     ui->setupUi(this);
+    this->setFixedSize(500,400);
     connect(ui->SignIn,&QPushButton::clicked,this,&LoginView::login);
     connect(ui->Anonmous,&QPushButton::clicked,this,&LoginView::AnonmousLogin);
     connect(ui->SignUp,&QPushButton::clicked,this,&LoginView::on_SignUp_clicked);
@@ -68,6 +69,7 @@ SignInView::SignInView(QWidget *parent):
     QDialog (parent),ui(new Ui::SignIn)
 {
     ui->setupUi(this);
+    this->setFixedSize(500,400);
     connect(ui->ok,&QPushButton::clicked,this,&SignInView::on_ok_clicked);
 }
 

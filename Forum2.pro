@@ -50,3 +50,6 @@ FORMS    += mainwindow.ui \
     user_info.ui \
     login.ui \
     signin.ui
+
+RESOURCES += \
+    bg.qrc

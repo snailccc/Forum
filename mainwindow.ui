@@ -6,12 +6,15 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>627</width>
-    <height>422</height>
+    <width>603</width>
+    <height>420</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>MainWindow</string>
+  </property>
+  <property name="styleSheet">
+   <string notr="true">background-color: rgb(255, 255, 255);</string>
   </property>
   <widget class="QWidget" name="centralWidget">
    <layout class="QGridLayout" name="gridLayout">
@@ -33,7 +36,7 @@
       <item>
        <widget class="QTableWidget" name="plateGroup">
         <property name="styleSheet">
-         <string notr="true">background-color: rgb(204, 204, 204);</string>
+         <string notr="true">background-color: rgb(255, 255, 255);</string>
         </property>
         <property name="lineWidth">
          <number>0</number>
@@ -85,7 +88,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>627</width>
+     <width>603</width>
      <height>26</height>
     </rect>
    </property>
