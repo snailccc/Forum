@@ -24,20 +24,28 @@ PlateView::PlateView(QString title,int id, QWidget *parent):
     QDialog(parent),title(title),plateId(id),
     ui(new Ui::Plate)
 {
+    //初始化窗口信息
     ui->setupUi(this);
     this->setWindowTitle(title);
     ui->plate_title->setText(title);
-
+    ui->plate_title->setStyleSheet("color:white");
+    //载入背景图片
+    QPalette palette;
+    QPixmap pixmap(":/img/bg1");
+    palette.setBrush(QPalette::Window,QBrush(pixmap.scaled(this->size(),Qt::IgnoreAspectRatio,Qt::SmoothTransformation)));
+    this->setPalette(palette);
+    //设置帖子列表属性
     ui->postGroup->horizontalHeader()->setSectionResizeMode(0,QHeaderView::Stretch);
     ui->postGroup->verticalHeader()->hide();
     ui->postGroup->setEditTriggers(QAbstractItemView::NoEditTriggers);
     ui->postGroup->setContextMenuPolicy(Qt::CustomContextMenu);
 
-    Init_View();
+    Init_View();//初始化界面
 }
 
 void PlateView::Init_View()
 {
+    //插入帖子，初始化帖子列表
     QString op = "select * from post where plateId="+QString::number(plateId);
     postgroup<<op;
     int n = postgroup.size();
@@ -50,7 +58,8 @@ void PlateView::Init_View()
     }
 }
 
-void PlateView::Add(Post *post){
+void PlateView::Add(Post *post)//插入帖子
+{
     postgroup.insert(postgroup.begin(),post);
     ui->postGroup->insertRow(0);
     ui->postGroup->setCellWidget(0,0,postgroup.front());
@@ -59,12 +68,12 @@ void PlateView::Add(Post *post){
     post>>db;
 }
 
-void PlateView::Delete(int postId)
+void PlateView::Delete(int postId)//删除帖子
 {
     vector<Post*>::iterator it=postgroup.begin();
     int pos = postgroup.size();
     int index = 0;
-
+    //遍历帖子容器，找到对应帖子进行删除
     while(it!=postgroup.end())
     {
         Post *post = *it;
@@ -96,7 +105,7 @@ void PlateView::Delete(int postId)
     }
 }
 
-void PlateView::on_pub_post_clicked(bool checked)
+void PlateView::on_pub_post_clicked(bool checked)//打开帖子发布窗口
 {
     if(user->Type()==ANONYMOUS)
     {
@@ -105,6 +114,7 @@ void PlateView::on_pub_post_clicked(bool checked)
     }
     pub_view = new PubView(this);
     pub_view->show();
+    //成功后向容器插入帖子
     if(pub_view->exec()==QDialog::Accepted)
     {
         int id = postgroup.size()+this->plateId*1000+1;
@@ -116,7 +126,7 @@ void PlateView::on_pub_post_clicked(bool checked)
     }
 }
 
-void PlateView::postDetail()
+void PlateView::postDetail()//打开帖子界面
 {
     Post *post = qobject_cast<Post *>(sender());
     int postId = post->Show();
@@ -126,7 +136,7 @@ void PlateView::postDetail()
     }
 }
 
-vector<Post*>& operator<<(vector<Post*>& group, QString op)
+vector<Post*>& operator<<(vector<Post*>& group, QString op)//重载从数据库中导入所有数据
 {
     QSqlQuery query(db);
     if(!query.exec(op))
@@ -146,7 +156,7 @@ vector<Post*>& operator<<(vector<Post*>& group, QString op)
     return group;
 }
 
-Post*& operator>>(Post*& post1, QSqlDatabase db)
+Post*& operator>>(Post*& post1, QSqlDatabase db)//重载向数据库插入帖子
 {
     QSqlQuery query(db);
     query.prepare("insert into post (id,title,content,authorId,plateId) values (?,?,?,?,?)");
@@ -180,7 +190,7 @@ QString PubView::Content()
     return content;
 }
 
-void PubView::on_ok_clicked(bool checked)
+void PubView::on_ok_clicked(bool checked)//发布成功
 {
     title = ui->title->text();
     content = ui->content->toPlainText();

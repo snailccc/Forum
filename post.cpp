@@ -24,13 +24,20 @@ PostView::PostView(int postId, int plateId,QString postContent, QString postTitl
     QDialog(parent),postId(postId),plateId(plateId),postContent(postContent),
     postTitle(postTitle),ui(new Ui::post),authorId(authorId)
 {
+    //初始化帖子界面
     ui->setupUi(this);
     this->setWindowTitle(postTitle);
+    //初始化背景图
+    QPalette palette;
+    QPixmap pixmap(":/img/bg1");
+    palette.setBrush(QPalette::Window,QBrush(pixmap));
+    this->setPalette(palette);
+
     ui->post_content->setText(this->postContent);
     delPost = new QPushButton("删除该贴", this);
     delPost->setGeometry(340,120,100,30);
     connect(delPost,SIGNAL(clicked(bool)),this,SLOT(DelPost()));
-
+    //初始化评论列表属性
     ui->commentGroup->horizontalHeader()->setSectionResizeMode(0,QHeaderView::Fixed);
     ui->commentGroup->setColumnWidth(0,100);
     ui->commentGroup->horizontalHeader()->setSectionResizeMode(1,QHeaderView::Stretch);
@@ -46,6 +53,7 @@ PostView::PostView(int postId, int plateId,QString postContent, QString postTitl
 
 void PostView::Init_View()
 {
+    //根据用户身份和信息显示帖子删除按钮
     if(user->ID()!=authorId && user->Type()!=MANAGER)
     {
         if(user->Type()==HOST_USER)
@@ -61,11 +69,10 @@ void PostView::Init_View()
         }
     }
 
-//    ui->commentGroup->horizontalHeader()->setSectionResizeMode(QHeaderView::Fixed);
     ui->commentGroup->setColumnWidth(2,50);
     QString op = "select * from comments where postId="+QString::number(postId);
     commentGroup<<op;
-
+    //向评论列表插入评论
     int n = commentGroup.size();
     ui->commentGroup->setRowCount(n);
     for(int i=0;i<n;i++)
@@ -82,7 +89,7 @@ void PostView::Init_View()
     }
 }
 
-void PostView::AddComment(QString commentId, QString content, QString authorId, QString authorName, int postId1)
+void PostView::AddComment(QString commentId, QString content, QString authorId, QString authorName, int postId1)//新增评论
 {    
     Comment *comment = new Comment(commentId,content,authorId,authorName,postId1);
     commentGroup.insert(commentGroup.begin(),comment);
@@ -98,7 +105,7 @@ void PostView::AddComment(QString commentId, QString content, QString authorId, 
     comment>>db;
 }
 
-void PostView::on_add_clicked(bool checked)
+void PostView::on_add_clicked(bool checked)//打开评论发布界面
 {
     if(user->Type()==ANONYMOUS)
     {
@@ -116,12 +123,13 @@ void PostView::on_add_clicked(bool checked)
     }
 }
 
-void PostView::DelComment()
+void PostView::DelComment()//删除评论
 {
     Del_Button *button = qobject_cast<Del_Button*>(sender());
     QString commentId = button->Id();
     vector<Comment*>::iterator it=commentGroup.begin();
 
+    //遍历评论容器，搜索目标评论，删除
     int pos = 0;
     while(it!=commentGroup.end())
     {
@@ -152,7 +160,7 @@ void PostView::DelComment()
     update();
 }
 
-void PostView::DelPost()
+void PostView::DelPost()//删除帖子
 {
     if(this->commentGroup.size()==0&&this->authorId==user->ID())
     {
@@ -175,7 +183,7 @@ void PostView::DelPost()
     QMessageBox::warning(this,tr("warning"),tr("删除失败"),QMessageBox::Yes);
 }
 
-vector<Comment*>& operator<< (vector<Comment*>& group, QString op)
+vector<Comment*>& operator<< (vector<Comment*>& group, QString op)//重载运算符，从数据库导出评论数据
 {
     QSqlQuery query(db);
     if(!query.exec(op))
@@ -195,7 +203,7 @@ vector<Comment*>& operator<< (vector<Comment*>& group, QString op)
     return group;
 }
 
-Comment*& operator>> (Comment*& comment, QSqlDatabase db)
+Comment*& operator>> (Comment*& comment, QSqlDatabase db)//重载运算符，向数据库插入新的评论
 {
     QSqlQuery query(db);
     query.prepare("insert into comments (id,content,authorId,authorName,postId) values (?,?,?,?,?)");

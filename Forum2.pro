@@ -52,4 +52,4 @@ FORMS    += mainwindow.ui \
     signin.ui
 
 RESOURCES += \
-    bg.qrc
+    rc.qrc

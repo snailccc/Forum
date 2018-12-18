@@ -51,7 +51,7 @@ int main(int argc, char *argv[])
         userGroup<<db;
     }
 
-
+    //显示登录界面
     user = new User();
     user->Login();
 

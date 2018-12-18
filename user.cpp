@@ -32,13 +32,13 @@ User::User(Base base)
     loginView = new LoginView;
 }
 
-void User::Login()
+void User::Login()//打开登录界面
 {
 
     loginView->show();
 }
 
-int User::Logout()
+int User::Logout()//用户注销
 {
     Login();
     int res = loginView->exec();
@@ -97,23 +97,22 @@ Manager::Manager(Base base):
     qDebug()<<"Manager"<<endl;
 }
 
-void Manager::Appointing(QString userId, int plateId)
+void Manager::Appointing(QString userId, int plateId)//任命版主
 {
     userGroup[userId].type = HOST_USER;
     userGroup[userId].plateId = plateId;
     Base base = userGroup[userId];
     base>>db;
-
 }
 
-void Manager::Removing(QString userId)
+void Manager::Removing(QString userId)//移除版主
 {
     userGroup[userId].type = COMMENT_USER;
     Base base = userGroup[userId];
     base>>db;
 }
 
-Base& operator>> (Base& base, QSqlDatabase db)
+Base& operator>> (Base& base, QSqlDatabase db)//重载运算符，更新用户信息
 {
     QSqlQuery query(db);
     if(base.type==HOST_USER)
@@ -162,6 +161,13 @@ User_Info_View::User_Info_View(QString username, QString id, QWidget *parent):
     QDialog(parent),ui(new Ui::user_info),username(username),id(id)
 {
     ui->setupUi(this);
+    this->setWindowTitle("Account");
+    QPalette palette;
+    QPixmap pixmap(":/img/bg1");
+    palette.setBrush(QPalette::Window,QBrush(pixmap.scaled(this->size(),Qt::IgnoreAspectRatio,Qt::SmoothTransformation)));
+    this->setPalette(palette);
+
+    //根据用户信息显示用户身份
     ui->id->setText(id);
     ui->username->setText(username);
     int type = user->Type();

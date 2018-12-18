@@ -14,6 +14,8 @@
 #include <QMessageBox>
 #include <QObject>
 #include <QHash>
+#include <QPalette>
+#include <QPixmap>
 #include <iostream>
 using namespace std;
 

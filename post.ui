@@ -14,7 +14,7 @@
    <string>Dialog</string>
   </property>
   <property name="styleSheet">
-   <string notr="true">background-color: rgb(255, 255, 255);</string>
+   <string notr="true"/>
   </property>
   <widget class="QPushButton" name="add">
    <property name="geometry">
@@ -24,6 +24,9 @@
      <width>100</width>
      <height>30</height>
     </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">background-color: rgb(0, 138, 217);</string>
    </property>
    <property name="text">
     <string>发表评论</string>

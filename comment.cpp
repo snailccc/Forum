@@ -1,6 +1,7 @@
 #include "comment.h"
 
 /////////////////////////////Del_Button////////////////////////
+/// 设置删除评论的按钮
 Del_Button::Del_Button(QString id, QString text, QWidget *parent):
     QPushButton (parent),id(id),text(text)
 {
@@ -11,10 +12,10 @@ Del_Button::Del_Button(QString id, QString text, QWidget *parent):
 Comment::Comment(QString commentId,QString content,QString authorId, QString authorName, int postId):
     id(commentId),content(content),authorId(authorId),authorName(authorName),postId(postId)
 {
-    contentView = new QTextBrowser();
+    contentView = new QTextBrowser();       //初始化
     del = new Del_Button(id,"X");
     del->setFixedSize(50,36);
-//    qDebug()<<1<<endl;
+
     contentView->setText(content);
     QFont font;
     font.setPointSize(11);
