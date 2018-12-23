@@ -1,70 +1,59 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include "plate.h"
-#include "user.h"
-#include "loginview.h"
-#include "ui_appoint.h"
-#include<QMainWindow>
-#include<QGridLayout>
-#include<QPushButton>
-#include<QWidget>
-#include<QToolBar>
-#include<QAction>
-#include<QApplication>
-#include<QUrl>
-#include<QVariant>
-#include<QTextCodec>
+#include <QMainWindow>
+#include <QTcpSocket>
+#include <QTcpServer>
+#include <QDateTime>
+#include <QStringList>
+
+#include "post.h"
+#include "comment.h"
 
 namespace Ui {
 class MainWindow;
-class appoint;
 }
-class MainWindow;
-class AppointView;
-/////////////////AppointView///////////////////////////////
-class AppointView:public QDialog
-{
-    Q_OBJECT
-private:
-    Ui::appoint *ui;
-    QString userId, plateId;
-public:
-    AppointView(int type=0, QWidget *parent=0);
-//    void Appointing();
-//    void Removing();
-    QString UserId();
-    QString PlateId();
-private slots:
-    void on_buttonBox_accepted();
-};
 
-/////////////////MainWindow///////////////////////////////
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
 private:
-    QGridLayout *layout;
-    vector<Plate*> plates;
-    QWidget *background;
-    QToolBar *toolbar;
-    QAction *logout,*exit,*account_info,*appoint,*remove;
-    Ui::MainWindow *ui;
-    AppointView *manager_View;
+    qint64 totalBytes;
+    qint64 bytesReceived;
+    qint64 bytestoWrite;
+    qint64 bytesWritten;
 
+    qint64 perDataSize;
+    QByteArray inBlock;
+    QByteArray outBlock;
+
+    QDateTime current_data_time;
+    QString str_data_time;
+
+    vector<QTcpSocket*>socketgroup;
 public:
-    explicit MainWindow(QWidget *parent=0);
-    friend vector<Plate*>& operator <<(vector<Plate*>& plateGroup, QSqlDatabase db);
-    void Initial_Background();
-    void Change_Background(int old_type);
-    void Initial_Action();
+    QTcpServer *server;
+
+    explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
-protected slots:
-    void Create_Plate_View();
-    void Logout();
-    void Get_Account_Info();
-    void Appointing();
-    void Removing();
+    void AddComment(QStringList segs);
+    void DelComment(QString commentId);
+    void AddPost(QStringList segs);
+    void DelPost(QStringList segs);
+    void Appoint(QStringList segs);
+    void Remove(QStringList segs);
+    void sendMessage(QString Message);
+    friend Comment*& operator>>(Comment*& comment, QSqlDatabase);
+    friend Post*& operator>>(Post*& post1,QSqlDatabase db);
+    friend Base& operator >>(Base& base, QSqlDatabase db);
+private slots:
+    void on_newClient_clicked(bool checked);
+    void acceptConnection();
+    void receiveData();
+    void displayError(QAbstractSocket::SocketError socketError);
+
+private:
+    Ui::MainWindow *ui;
 };
 
 #endif // MAINWINDOW_H

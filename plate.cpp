@@ -1,5 +1,7 @@
 #include "plate.h"
 
+extern vector<User*>clients;
+
 //////////////////////Plate/////////////////////
 Plate::Plate(int id, QString title,QWidget *parent):
     QPushButton (parent),id(id),title(title)
@@ -8,9 +10,9 @@ Plate::Plate(int id, QString title,QWidget *parent):
     this->setStyleSheet("background-color: rgb(196, 226, 216);");
 }
 
-void Plate::Show()
+void Plate::Show(int index,QTcpServer *server,QTcpSocket *socket)
 {
-    this->plateview = new PlateView(title,id,0);
+    this->plateview = new PlateView(index,title,id,server,socket);
     plateview->show();
 }
 
@@ -20,10 +22,17 @@ int Plate::Id()
 }
 
 //////////////////////PlateView/////////////////////
-PlateView::PlateView(QString title,int id, QWidget *parent):
-    QDialog(parent),title(title),plateId(id),
+PlateView::PlateView(int index,QString title,int id, QTcpServer *server, QTcpSocket *socket, QWidget *parent):
+    QDialog(parent),title(title),plateId(id),index(index),
+    server(server),socket(socket),
     ui(new Ui::Plate)
 {
+    //初始化网络连接
+    connect(socket,SIGNAL(readyRead()),this,SLOT(receiveData()));
+    perDataSize = 64*1024;
+    bytesWrite = 0;
+    bytesWritten = 0;
+    bytesRecived = 0;
     //初始化窗口信息
     ui->setupUi(this);
     this->setWindowTitle(title);
@@ -58,6 +67,32 @@ void PlateView::Init_View()
     }
 }
 
+void PlateView::sendData(QString message)
+{
+    socket->write(message.toUtf8());
+}
+
+void PlateView::receiveData()
+{
+    QString message = socket->readAll();
+    QStringList segs = message.split("|");
+    int op = segs[0].toInt();
+    segs.removeOne(segs.front());
+    if(op==op_addpost)
+    {
+        Add(new Post(segs[0].toInt(),segs[4].toInt(),segs[1],segs[2],segs[3]));
+    }
+    else if(op==op_delpost)
+    {
+        DeletePost(segs[0].toInt());
+    }
+}
+
+void PlateView::disconnectServer()
+{
+    qDebug()<<"disconnectServer"<<endl;
+}
+
 void PlateView::Add(Post *post)//插入帖子
 {
     postgroup.insert(postgroup.begin(),post);
@@ -65,10 +100,9 @@ void PlateView::Add(Post *post)//插入帖子
     ui->postGroup->setCellWidget(0,0,postgroup.front());
     connect(postgroup.front(),SIGNAL(clicked(bool)),this,SLOT(postDetail()));
     update();
-    post>>db;
 }
 
-void PlateView::Delete(int postId)//删除帖子
+void PlateView::DeletePost(int postId)//删除帖子
 {
     vector<Post*>::iterator it=postgroup.begin();
     int pos = postgroup.size();
@@ -79,7 +113,6 @@ void PlateView::Delete(int postId)//删除帖子
         Post *post = *it;
         if(post->ID() == postId)
         {
-
             ui->postGroup->removeRow(index);
             it = postgroup.erase(it);
             break;
@@ -92,47 +125,40 @@ void PlateView::Delete(int postId)//删除帖子
     }
     update();
 
-    QSqlQuery query(db);
-    if(!query.exec("delete from post where id="+QString::number(postId)))
-    {
-        QMessageBox::warning(0,QObject::tr("database connect error"),QObject::tr("please check your internet connect and database"));
-        exit(0);
-    }
-    if(!query.exec("delete from comments where postId="+QString::number(postId)))
-    {
-        QMessageBox::warning(0,QObject::tr("database connect error"),QObject::tr("please check your internet connect and database"));
-        exit(0);
-    }
 }
 
 void PlateView::on_pub_post_clicked(bool checked)//打开帖子发布窗口
 {
-    if(user->Type()==ANONYMOUS)
+    if(clients[index]->Type()==ANONYMOUS)
     {
         QMessageBox::warning(0,tr("warning"),tr("please login first"));
         return;
     }
     pub_view = new PubView(this);
     pub_view->show();
-    //成功后向容器插入帖子
     if(pub_view->exec()==QDialog::Accepted)
     {
         int id = postgroup.size()+this->plateId*1000+1;
         QString p_title = pub_view->Title();
         QString p_content = pub_view->Content();
-        Post *post = new Post(id,plateId,p_title,p_content,user->ID());
-        Add(post);
-        update();
+        //向服务端发送信息
+        QString message = QString::number(op_addpost) + "|" + QString::number(id) + "|" +
+                p_title + "|" + p_content + "|" +
+                clients[index]->ID() + "|" + QString::number(plateId);
+        sendData(message);
     }
 }
 
 void PlateView::postDetail()//打开帖子界面
 {
     Post *post = qobject_cast<Post *>(sender());
-    int postId = post->Show();
+    int postId = post->Show(index,server,socket);
+
     if(postId)
     {
-        Delete(postId);
+        QString message = QString::number(op_delpost);
+        message = message + "|" + QString::number(postId) + "|" + clients[index]->ID();
+        sendData(message);
     }
 }
 
@@ -154,23 +180,6 @@ vector<Post*>& operator<<(vector<Post*>& group, QString op)//重载从数据库�
         group.insert(group.begin(),new Post(postId1,plateId1, title1, content1,authorId1));
     }
     return group;
-}
-
-Post*& operator>>(Post*& post1, QSqlDatabase db)//重载向数据库插入帖子
-{
-    QSqlQuery query(db);
-    query.prepare("insert into post (id,title,content,authorId,plateId) values (?,?,?,?,?)");
-    query.addBindValue(post1->ID());
-    query.addBindValue(post1->Title());
-    query.addBindValue(post1->Content());
-    query.addBindValue(post1->AuthorId());
-    query.addBindValue(post1->PlateId());
-    if(!query.exec())
-    {
-        QMessageBox::warning(0,QObject::tr("database connect error"),QObject::tr("please check your internet connect and database"));
-        exit(0);
-    }
-    return post1;
 }
 
 //////////////////////PubView/////////////////////

@@ -6,6 +6,7 @@
 
 QT       += core gui
 QT       += core sql
+QT       += core network
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -30,7 +31,8 @@ SOURCES += main.cpp\
     user.cpp \
     plate.cpp \
     comment.cpp \
-    post.cpp
+    post.cpp \
+    client.cpp
 
 HEADERS  += mainwindow.h \
     loginview.h \
@@ -38,9 +40,10 @@ HEADERS  += mainwindow.h \
     global.h \
     plate.h \
     comment.h \
-    post.h
+    post.h \
+    client.h
 
-FORMS    += mainwindow.ui \
+FORMS    += \
     appoint.ui \
     comment.ui \
     plate.ui \
@@ -49,7 +52,9 @@ FORMS    += mainwindow.ui \
     public.ui \
     user_info.ui \
     login.ui \
-    signin.ui
+    signin.ui \
+    client.ui \
+    mainwindow.ui
 
 RESOURCES += \
     rc.qrc

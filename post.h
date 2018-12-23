@@ -17,6 +17,9 @@
 #include<QTableWidget>
 #include<QTableWidgetItem>
 #include<QTextBrowser>
+#include<QTcpServer>
+#include<QTcpSocket>
+
 
 class Post;
 class PostView;
@@ -37,7 +40,7 @@ public:
     QString AuthorId()const{return authorId;}
     int ID()const{return id;}
     int PlateId()const{return plateId;}
-    int Show();
+    int Show(int index,QTcpServer *server,QTcpSocket *socket);
     void AddComment(QString commentId, QString content, QString authorId, QString authorName, int postId1);
 };
 
@@ -48,21 +51,36 @@ class PostView:public QDialog
 private:
     Ui::post *ui;
     QString postContent,postTitle,authorId;
-    int postId,plateId;
+    int postId,plateId,index;
     PubComment *pubComment;
     QPushButton *delPost;
     vector<Comment*>commentGroup;
+    QTcpSocket *socket;
+    QTcpServer *server;
+    qint64 bytesWritten;
+    qint64 bytesWrite;
+    qint64 bytesRecived;
+    qint64 perDataSize;
+    QByteArray inBlock;
+    QByteArray outBlock;
+
 public:
-    PostView(int postId, int plateId,QString postContent,QString postTitle,QString authorId,QWidget *parent=0);
+    PostView(int index, int postId, int plateId,QString postContent,QString postTitle,QString authorId,QTcpServer *server,QTcpSocket *socket,QWidget *parent=0);
     void Init_View();
+    void newConnect();
     void AddComment(QString commentId, QString content, QString authorId,QString authorName, int postId);
     int ComentSize(){return ui->commentGroup->rowCount();}
     friend vector<Comment*>& operator<<(vector<Comment*>& group, QString op);
-    friend Comment*& operator>>(Comment*& comment, QSqlDatabase);
+
 private slots:
     void on_add_clicked(bool checked);
     void DelPost();
-    void DelComment();
+    void on_del_comment();
+    void DelComment(QString commentId);
+    void disconnectServer();
+    void sendData(QString message);
+    void receiveData();
+
 };
 
 ////////////////////////////////PubComment////////////////////////////////////////

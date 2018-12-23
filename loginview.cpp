@@ -1,6 +1,7 @@
 #include "loginview.h"
 #include "global.h"
 map<QString, Base>userGroup;
+extern vector<User*>clients;
 
 LoginView::LoginView(QWidget *parent):
     QDialog(parent),ui(new Ui::Login)
@@ -12,6 +13,8 @@ LoginView::LoginView(QWidget *parent):
     palette.setBrush(QPalette::Window,QBrush(pixmap.scaled(this->size(),Qt::IgnoreAspectRatio,Qt::SmoothTransformation)));
     this->setPalette(palette);
 
+    this->setModal(false);
+
     connect(ui->SignIn,&QPushButton::clicked,this,&LoginView::login);
     connect(ui->Anonmous,&QPushButton::clicked,this,&LoginView::AnonmousLogin);
     connect(ui->SignUp,&QPushButton::clicked,this,&LoginView::on_SignUp_clicked);
@@ -21,22 +24,25 @@ void LoginView::login(){
     QString id=ui->Id->text();
     QString password = ui->pwd->text();
     // 判断登录的用户名和密码是否正确
+    User *user;
     if(userGroup.count(id)) {
         Base base = userGroup[id];
         if(base.pwd == password)
         {
             //根据用户的类型实例化
+            this->id = id;
+            clients.push_back(user);
             if(base.type == COMMENT_USER)
             {
-                user = new User(base);
+                clients[clients.size()-1] = new User(base);
             }
             else if(base.type == MANAGER)
             {
-                user = new Manager(base);
+                clients[clients.size()-1] = new Manager(base);
             }
             else if(base.type == HOST_USER)
             {
-                user = new Hoster(base);
+                clients[clients.size()-1] = new Hoster(base);
             }
             accept();
             return;
@@ -44,6 +50,11 @@ void LoginView::login(){
     }
     QMessageBox::warning(0,tr("warning"),tr("user id or pwd error"));
     ui->pwd->clear();
+}
+
+QString LoginView::Id()
+{
+    return id;
 }
 
 QString LoginView::Pwd(QString id)
@@ -54,7 +65,8 @@ QString LoginView::Pwd(QString id)
 void LoginView::AnonmousLogin()
 {
     Base base("anonymous","","unknow",ANONYMOUS);
-    user = new Anonymous(base);
+    User *user = new Anonymous(base);
+    clients.push_back(user);
     accept();
     return;
 }
@@ -64,6 +76,7 @@ void LoginView::on_SignUp_clicked(bool checked)//登录界面初始化
     SignInView *signin = new SignInView();
     signin->show();
 }
+
 
 
 //////////////////////////////////SignInView////////////////////////////

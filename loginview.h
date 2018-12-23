@@ -24,8 +24,10 @@ public:
     virtual ~LoginView(){}
 private:
     Ui::Login *ui;
+    QString id;
 public:
     QString Pwd(QString id);
+    QString Id();
 private slots:// 声明槽函数
     void login();
     void AnonmousLogin();

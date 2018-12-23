@@ -76,7 +76,7 @@ int User::Type()
 
 void User::ShowInfo()
 {
-    info = new User_Info_View(userName,id);
+    info = new User_Info_View(type,userName,id);
     info->show();
 }
 
@@ -102,37 +102,12 @@ void Manager::Appointing(QString userId, int plateId)//任命版主
     userGroup[userId].type = HOST_USER;
     userGroup[userId].plateId = plateId;
     Base base = userGroup[userId];
-    base>>db;
 }
 
 void Manager::Removing(QString userId)//移除版主
 {
     userGroup[userId].type = COMMENT_USER;
     Base base = userGroup[userId];
-    base>>db;
-}
-
-Base& operator>> (Base& base, QSqlDatabase db)//重载运算符，更新用户信息
-{
-    QSqlQuery query(db);
-    if(base.type==HOST_USER)
-    {
-        query.prepare("update user set type=?,plateId=? where id=?");
-        query.addBindValue(QString::number(base.type));
-        query.addBindValue(base.plateId);
-    }
-    else if(base.type==COMMENT_USER)
-    {
-        query.prepare("update user set type=? where id=?");
-        query.addBindValue(QString::number(base.type));
-    }
-    query.addBindValue(base.id);
-    if(!query.exec())
-    {
-        QMessageBox::warning(0,QObject::tr("database connect error"),QObject::tr("please check your internet connect and database"));
-        exit(0);
-    }
-    return base;
 }
 
 
@@ -140,13 +115,20 @@ Base& operator>> (Base& base, QSqlDatabase db)//重载运算符，更新用户�
 Hoster::Hoster(Base base):
     User(base),plateId(base.plateId)
 {
-    qDebug()<<"Hoster"<<endl;
+    qDebug()<<"Hoster plateId"<<plateId<<endl;
 }
 
 int Hoster::PlateId()
 {
     return plateId;
 }
+
+void Hoster::ShowInfo()
+{
+    info = new User_Info_View(User::Type(),User::Name(),User::ID(),plateId);
+    info->show();
+}
+
 
 //////////////////////Hoster//////////////////////////
 Anonymous::Anonymous(Base base):
@@ -157,8 +139,8 @@ Anonymous::Anonymous(Base base):
 
 
 //////////////////////////User_Info_View///////////////////////////////
-User_Info_View::User_Info_View(QString username, QString id, QWidget *parent):
-    QDialog(parent),ui(new Ui::user_info),username(username),id(id)
+User_Info_View::User_Info_View(int type, QString username, QString id, int plateId, QWidget *parent):
+    QDialog(parent),ui(new Ui::user_info),username(username),id(id),type(type)
 {
     ui->setupUi(this);
     this->setWindowTitle("Account");
@@ -170,14 +152,14 @@ User_Info_View::User_Info_View(QString username, QString id, QWidget *parent):
     //根据用户信息显示用户身份
     ui->id->setText(id);
     ui->username->setText(username);
-    int type = user->Type();
+
     if(type==COMMENT_USER)
     {
         ui->type->setText("User");
     }
     else if(type==HOST_USER)
     {
-        ui->type->setText("Moderator of "+QString::number(user->PlateId())+" plate");
+        ui->type->setText("Moderator of "+QString::number(plateId)+" plate");
     }
     else if(type == MANAGER)
     {

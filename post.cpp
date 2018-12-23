@@ -1,5 +1,6 @@
 #include "post.h"
 
+extern vector<User*>clients;
 ////////////////////////////////Post////////////////////////////////////////
 Post::Post(int id,int plateId, QString title, QString content, QString authorId,QWidget *parent):
     QPushButton (parent),title(title),content(content),authorId(authorId),id(id),plateId(plateId)
@@ -7,23 +8,32 @@ Post::Post(int id,int plateId, QString title, QString content, QString authorId,
     this->setText(title);
 }
 
-int Post::Show()
+int Post::Show(int index,QTcpServer *server,QTcpSocket *socket)
 {
-    this->view = new PostView(id,plateId,content,title,authorId);
-    this->view->show();
-
+    this->view = new PostView(index,id,plateId,content,title,authorId,server,socket);
+    view->setModal(false);
+    view->show();
     if(view->exec()==2)
     {
        return id;
     }
+    delete(view);
     return 0;
 }
 
 ////////////////////////////////PostView////////////////////////////////////////
-PostView::PostView(int postId, int plateId,QString postContent, QString postTitle,QString authorId,QWidget *parent):
+PostView::PostView(int index, int postId, int plateId,QString postContent, QString postTitle,QString authorId,QTcpServer *server,QTcpSocket *socket,QWidget *parent):
     QDialog(parent),postId(postId),plateId(plateId),postContent(postContent),
-    postTitle(postTitle),ui(new Ui::post),authorId(authorId)
+    postTitle(postTitle),ui(new Ui::post),authorId(authorId),index(index),
+    server(server),socket(socket)
 {
+    //初始化网络连接
+    connect(socket,SIGNAL(readyRead()),this,SLOT(receiveData()));
+
+    perDataSize = 64*1024;
+    bytesWrite = 0;
+    bytesWritten = 0;
+    bytesRecived = 0;
     //初始化帖子界面
     ui->setupUi(this);
     this->setWindowTitle(postTitle);
@@ -51,14 +61,15 @@ PostView::PostView(int postId, int plateId,QString postContent, QString postTitl
 
 }
 
+
 void PostView::Init_View()
 {
     //根据用户身份和信息显示帖子删除按钮
-    if(user->ID()!=authorId && user->Type()!=MANAGER)
+    if(clients[index]->ID()!=authorId && clients[index]->Type()!=MANAGER)
     {
-        if(user->Type()==HOST_USER)
+        if(clients[index]->Type()==HOST_USER)
         {
-            if(user->PlateId()!=plateId)
+            if(clients[index]->PlateId()!=plateId)
             {
                 delPost->setVisible(0);
             }
@@ -80,55 +91,90 @@ void PostView::Init_View()
         Comment *comment = commentGroup[i];
         ui->commentGroup->setItem(i,0,new QTableWidgetItem(comment->AuthorName()));
         ui->commentGroup->setCellWidget(i,1,comment->ContentView());
-        if(comment->AuthorId()==user->ID())
+        if(comment->AuthorId()==clients[index]->ID())
         {
             ui->commentGroup->setCellWidget(i,2,comment->DelButton());
-            connect(comment->DelButton(),SIGNAL(clicked(bool)),this,SLOT(DelComment()));
+            connect(comment->DelButton(),SIGNAL(clicked(bool)),this,SLOT(on_del_comment()));
         }
 
+    }
+    update();
+}
+
+void PostView::sendData(QString message)
+{
+    socket->write(message.toUtf8());
+}
+
+void PostView::receiveData()
+{
+    QString message = socket->readAll();
+    QStringList segs = message.split("|");
+    int op = segs[0].toInt();
+    segs.removeOne(segs.front());
+    if(op==op_addcomment)
+    {
+        AddComment(segs[0],segs[1],segs[2],segs[3],segs[4].toInt());
+    }
+    else if(op==op_delcomment)
+    {
+        DelComment(segs[0]);
     }
 }
 
 void PostView::AddComment(QString commentId, QString content, QString authorId, QString authorName, int postId1)//新增评论
-{    
+{
     Comment *comment = new Comment(commentId,content,authorId,authorName,postId1);
     commentGroup.insert(commentGroup.begin(),comment);
     ui->commentGroup->insertRow(0);
-    ui->commentGroup->setItem(0,0,new QTableWidgetItem(user->Name()));
+    ui->commentGroup->setItem(0,0,new QTableWidgetItem(clients[index]->Name()));
     ui->commentGroup->setCellWidget(0,1,comment->ContentView());
-    if(comment->AuthorId()==user->ID())
+    if(comment->AuthorId()==clients[index]->ID())
     {
+        qDebug()<<"add comment"<<content<<endl;
         ui->commentGroup->setCellWidget(0,2,comment->DelButton());
-        connect(comment->DelButton(),SIGNAL(clicked(bool)),this,SLOT(DelComment()));
+        connect(comment->DelButton(),SIGNAL(clicked(bool)),this,SLOT(on_del_comment()));
     }
 
-    comment>>db;
+}
+
+void PostView::disconnectServer()
+{
+    socket->close();
 }
 
 void PostView::on_add_clicked(bool checked)//打开评论发布界面
 {
-    if(user->Type()==ANONYMOUS)
+    if(clients[index]->Type()==ANONYMOUS)
     {
         QMessageBox::warning(0,tr("warning"),tr("please login first"));
         return;
     }
     pubComment = new PubComment(this);
-    pubComment->show();
     if(pubComment->exec() == QDialog::Accepted)
     {
         QString c_content = pubComment->Content();
         QString id = QString::number(postId)+"_c_"+QString::number(commentGroup.size());
-        AddComment(id, c_content, user->ID(),user->Name(),postId);
-        update();
+
+        QString message = QString::number(op_addcomment) + "|" +id + "|"+
+                c_content + "|" + clients[index]->ID() +"|" +
+                clients[index]->Name() + "|" + QString::number(postId);
+        sendData(message);
     }
 }
 
-void PostView::DelComment()//删除评论
+void PostView::on_del_comment()
 {
     Del_Button *button = qobject_cast<Del_Button*>(sender());
     QString commentId = button->Id();
-    vector<Comment*>::iterator it=commentGroup.begin();
+    QString message = QString::number(op_delcomment) + "|" +commentId;
+    sendData(message);
+}
 
+void PostView::DelComment(QString commentId)//删除评论
+{
+
+    vector<Comment*>::iterator it=commentGroup.begin();
     //遍历评论容器，搜索目标评论，删除
     int pos = 0;
     while(it!=commentGroup.end())
@@ -147,36 +193,33 @@ void PostView::DelComment()//删除评论
             pos++;
         }
     }
-
-    QSqlQuery query(db);
-    query.prepare("DELETE from comments where id=?");
-    query.addBindValue(commentId);
-    if(!query.exec())
-    {
-        QMessageBox::warning(0,QObject::tr("database connect error"),QObject::tr("please check your internet connect and database"));
-        exit(0);
-    }
-
     update();
 }
 
 void PostView::DelPost()//删除帖子
 {
-    if(this->commentGroup.size()==0&&this->authorId==user->ID())
+    QString message = QString::number(op_delpost)+"|";
+    if(this->commentGroup.size()==0&&this->authorId==clients[index]->ID())
     {
+        message = message + QString::number(postId) + "|" + clients[index]->ID();
+        sendData(message);
         done(2);
         return;
     }
-    if(user->Type()==HOST_USER)
+    if(clients[index]->Type()==HOST_USER)
     {
-        if(user->PlateId()==plateId)
+        if(clients[index]->PlateId()==plateId)
         {
+            message = message + QString::number(postId) + "|" + clients[index]->ID();
+            sendData(message);
             done(2);
             return;
         }
     }
-    if(user->Type()==MANAGER)
+    if(clients[index]->Type()==MANAGER)
     {
+        message = message + QString::number(postId) + "|" + clients[index]->ID();
+        sendData(message);
         done(2);
         return;
     }
@@ -201,23 +244,6 @@ vector<Comment*>& operator<< (vector<Comment*>& group, QString op)//重载运算
         group.insert(group.begin(),new Comment(commentId,content,authorId,authorName,postId));
     }
     return group;
-}
-
-Comment*& operator>> (Comment*& comment, QSqlDatabase db)//重载运算符，向数据库插入新的评论
-{
-    QSqlQuery query(db);
-    query.prepare("insert into comments (id,content,authorId,authorName,postId) values (?,?,?,?,?)");
-    query.addBindValue(comment->Id());
-    query.addBindValue(comment->Content());
-    query.addBindValue(comment->AuthorId());
-    query.addBindValue(comment->AuthorName());
-    query.addBindValue(comment->PostId());
-    if(!query.exec())
-    {
-        QMessageBox::warning(0,QObject::tr("database connect error"),QObject::tr("please check your internet connect and database"));
-        exit(0);
-    }
-    return comment;
 }
 
 ////////////////////////////////PubComment////////////////////////////////////////

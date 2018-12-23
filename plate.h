@@ -24,17 +24,29 @@ private:
     vector<Post*>postgroup;
     Ui::Plate *ui;
     PubView *pub_view;
-    int plateId;
+    int plateId, index;
+    //网络连接部分
+    QTcpSocket *socket;
+    QTcpServer *server;
+    qint64 bytesWritten;
+    qint64 bytesWrite;
+    qint64 bytesRecived;
+    qint64 perDataSize;
+    QByteArray inBlock;
+    QByteArray outBlock;
 public:
-    PlateView(QString title,int id,QWidget *parent=0);
+    PlateView(int index, QString title,int id,QTcpServer *server,QTcpSocket *socket,QWidget *parent=0);
     void Init_View();
     void Add(Post *post);
-    void Delete(int postId);
+    void DeletePost(int postId);
+    void newConnect();
     friend vector<Post*>& operator<<(vector<Post*>& group, QString db);
-    friend Post*& operator>>(Post*& post1,QSqlDatabase db);
 private slots:
     void on_pub_post_clicked(bool checked);
     void postDetail();
+    void disconnectServer();
+    void sendData(QString message);
+    void receiveData();
 };
 
 
@@ -45,17 +57,15 @@ class Plate:public QPushButton
 private:
     int id;
     QString title;
+
 public:
     Plate();
     Plate(int id, QString title, QWidget *parent=0);
     QString get_title(){return title;}
     int get_id(){return id;}
-//    void AddPost(Post *post);
-//    void DeletePost(int id);
-    void Show();
+    void Show(int index,QTcpServer *server,QTcpSocket *socket);
     int Id();
     PlateView *plateview;
-//    QPushButton *plateButton;
 };
 
 /////////////////////PubView//////////////////////////
@@ -66,9 +76,8 @@ class PubView:public QDialog
 private:
     Ui::Public *ui;
     QString title,content;
-
 public:
-    PubView(QWidget *parent);
+    PubView(QWidget *parent=0);
     QString Title();
     QString Content();
 

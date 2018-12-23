@@ -29,8 +29,9 @@ class User_Info_View:public QDialog
 private:
     Ui::user_info *ui;
     QString username,id;
+    int type;
 public:
-    User_Info_View(QString username,QString id,QWidget *parent=0);
+    User_Info_View(int type, QString username,QString id,int plateId=0, QWidget *parent=0);
 };
 
 //////////////////////////User///////////////////////////////
@@ -50,7 +51,7 @@ public:
     QString Name();
     QString Pwd();
     int Type();
-    void ShowInfo();
+    virtual void ShowInfo();
     void Login();
     int Logout();
     virtual void Appointing(QString userId,int plateId);
@@ -65,8 +66,6 @@ class Manager:public User
 private:
 public:
     Manager(Base base);
-//    friend Base& operator >>(Base& base, QSqlDatabase db);
-    friend Base& operator >>(Base& base, QSqlDatabase db);
     virtual void Appointing(QString userId,int plateId);
     virtual void Removing(QString userId);
 };
@@ -76,8 +75,10 @@ class Hoster:public User
 {
 private:
     int plateId;
+    User_Info_View *info;
 public:
     Hoster(Base base);
+    virtual void ShowInfo();
     int PlateId();
 };
 

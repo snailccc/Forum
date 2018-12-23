@@ -1,10 +1,12 @@
 #include "mainwindow.h"
 #include "global.h"
 #include <QApplication>
+#include <QTextCodec>
 
-User *user = NULL;
+//User *user = NULL;
 QSqlDatabase db = QSqlDatabase::addDatabase("QMYSQL");
 extern map<QString, Base> userGroup;
+extern vector<User*> clients;
 
 map<QString, Base>& operator<<(map<QString, Base>&group, QSqlDatabase db)
 {
@@ -51,14 +53,18 @@ int main(int argc, char *argv[])
         userGroup<<db;
     }
 
-    //显示登录界面
-    user = new User();
-    user->Login();
+    MainWindow w;
+    w.show();
+    return a.exec();
 
-    if(user->loginView->exec()==QDialog::Accepted)
-    {
-        MainWindow w;
-        w.show();
-        return a.exec();
-    }
+//    //显示登录界面
+//    user = new User();
+//    user->Login();
+
+//    if(user->loginView->exec()==QDialog::Accepted)
+//    {
+//        MainWindow w;
+//        w.show();
+//        return a.exec();
+//    }
 }
