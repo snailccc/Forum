@@ -71,6 +71,58 @@ void Client::connectServer()
     connect(socket,SIGNAL(readyRead()),this,SLOT(receiveData()));
 }
 
+void Client::AddPost(QStringList segs)
+{
+    int plateId = segs[4].toInt();
+    for(int i=0;i<plates.size();i++)
+    {
+        if(plates[i]->Id()==plateId)
+        {
+            plates[i]->AddPost(segs);
+            return;
+        }
+    }
+}
+
+void Client::DelPost(QStringList segs)
+{
+    int plateId =segs[2].toInt();
+    for(int i=0;i<plates.size();i++)
+    {
+        if(plates[i]->Id()==plateId)
+        {
+            plates[i]->DelPost(segs);
+            return;
+        }
+    }
+}
+
+void Client::AddComment(QStringList segs)
+{
+    int plateId = segs[5].toInt();
+    for(int i=0;i<plates.size();i++)
+    {
+        if(plates[i]->Id()==plateId)
+        {
+            plates[i]->AddComment(segs);
+            return;
+        }
+    }
+}
+
+void Client::DelComment(QString commentId)
+{
+    int plateId = commentId.mid(0,3).toInt();
+    for(int i=0;i<plates.size();i++)
+    {
+        if(plates[i]->Id()==plateId)
+        {
+            plates[i]->DelComment(commentId);
+            return;
+        }
+    }
+}
+
 void Client::sendData(QString message)
 {
     socket->write(message.toUtf8());
@@ -79,10 +131,27 @@ void Client::sendData(QString message)
 void Client::receiveData()
 {
     QString message = socket->readAll();
+    qDebug()<<"client "<<index<<" receive:"<<message<<endl;
     QStringList segs = message.split("|");
     int op = segs[0].toInt();
     segs.removeOne(segs.front());
-    if(op==op_appoint)
+    if(op==op_addpost)
+    {
+        AddPost(segs);
+    }
+    else if(op==op_delpost)
+    {
+        DelPost(segs);
+    }
+    else if(op==op_addcomment)
+    {
+        AddComment(segs);
+    }
+    else if(op==op_delcomment)
+    {
+        DelComment(segs[0]);
+    }
+    else if(op==op_appoint)
     {
         clients[index]->Appointing(segs[0],segs[1].toInt());
     }
@@ -90,6 +159,7 @@ void Client::receiveData()
     {
         clients[index]->Removing(segs[0]);
     }
+
 }
 
 void Client::disconnectServer()
@@ -156,7 +226,7 @@ void Client::Create_Plate_View()//打开板块界面
 {
     Plate *plate = qobject_cast<Plate *>(sender());
     QString title = plate->get_title();
-    plate->Show(index,server,socket);
+    plate->Show(index,socket);
 }
 
 void Client::Get_Account_Info()//打开用户信息界面
@@ -191,7 +261,6 @@ void Client::Logout()//用户登出
     {
         this->close();
     }
-
 }
 
 void Client::Appointing()//打开任命窗口
@@ -219,7 +288,7 @@ void Client::Removing()//打开撤销版主窗口
     }
 }
 
-vector<Plate*>& operator <<(vector<Plate*>&plates, QSqlDatabase db)//重载数据库导出板块数据符号
+vector<Plate*>& operator<< (vector<Plate*>&plates, QSqlDatabase db)//重载数据库导出板块数据符号
 {
     QSqlQuery query(db);
     if(!query.exec("select * from plates"))
@@ -235,6 +304,11 @@ vector<Plate*>& operator <<(vector<Plate*>&plates, QSqlDatabase db)//重载数�
         plates.push_back(new Plate(id, title));
     }
     return plates;
+}
+
+void Client::closeEvent(QCloseEvent *event)
+{
+    socket->close();
 }
 
 Client::~Client()

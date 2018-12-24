@@ -56,7 +56,6 @@ private:
     QAction *logout,*exit,*account_info,*appoint,*remove;
     Ui::Client *ui;
     AppointView *manager_View;
-
     QTcpSocket *socket;
     QTcpServer *server;
 
@@ -68,6 +67,11 @@ public:
     void Initial_Action();
     void initTCP();
     void newConnect();
+    void AddPost(QStringList segs);
+    void DelPost(QStringList segs);
+    void AddComment(QStringList segs);
+    void DelComment(QString commentId);
+    void closeEvent(QCloseEvent *event);
     ~Client();
 protected slots:
     void Create_Plate_View();

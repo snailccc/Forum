@@ -27,26 +27,19 @@ private:
     int plateId, index;
     //网络连接部分
     QTcpSocket *socket;
-    QTcpServer *server;
-    qint64 bytesWritten;
-    qint64 bytesWrite;
-    qint64 bytesRecived;
-    qint64 perDataSize;
-    QByteArray inBlock;
-    QByteArray outBlock;
 public:
-    PlateView(int index, QString title,int id,QTcpServer *server,QTcpSocket *socket,QWidget *parent=0);
+    PlateView(int index, QString title,int id,QTcpSocket *socket,QWidget *parent=0);
     void Init_View();
-    void Add(Post *post);
+    void AddPost(Post *post);
     void DeletePost(int postId);
-    void newConnect();
+    void AddComment(QStringList message);
+    void DelComment(QString commentId);
     friend vector<Post*>& operator<<(vector<Post*>& group, QString db);
 private slots:
     void on_pub_post_clicked(bool checked);
     void postDetail();
     void disconnectServer();
     void sendData(QString message);
-    void receiveData();
 };
 
 
@@ -63,8 +56,12 @@ public:
     Plate(int id, QString title, QWidget *parent=0);
     QString get_title(){return title;}
     int get_id(){return id;}
-    void Show(int index,QTcpServer *server,QTcpSocket *socket);
+    void Show(int index,QTcpSocket *socket);
     int Id();
+    void AddPost(QStringList message);
+    void DelPost(QStringList message);
+    void AddComment(QStringList message);
+    void DelComment(QString commentId);
     PlateView *plateview;
 };
 

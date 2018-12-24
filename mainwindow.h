@@ -51,7 +51,7 @@ private slots:
     void acceptConnection();
     void receiveData();
     void displayError(QAbstractSocket::SocketError socketError);
-
+    void DelSocket();
 private:
     Ui::MainWindow *ui;
 };

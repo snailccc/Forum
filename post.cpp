@@ -8,32 +8,35 @@ Post::Post(int id,int plateId, QString title, QString content, QString authorId,
     this->setText(title);
 }
 
-int Post::Show(int index,QTcpServer *server,QTcpSocket *socket)
+int Post::Show(int index,QTcpSocket *socket)
 {
-    this->view = new PostView(index,id,plateId,content,title,authorId,server,socket);
+    this->view = new PostView(index,id,plateId,content,title,authorId,socket);
     view->setModal(false);
     view->show();
     if(view->exec()==2)
     {
-       return id;
+        return id;
     }
     delete(view);
     return 0;
 }
 
+void Post::AddComment(QString commentId, QString content, QString authorId, QString authorName, int postId1)
+{
+    view->AddComment(commentId,content,authorId,authorId,postId1);
+}
+
+void Post::DelComment(QString commentId)
+{
+    view->DelComment(commentId);
+}
+
 ////////////////////////////////PostView////////////////////////////////////////
-PostView::PostView(int index, int postId, int plateId,QString postContent, QString postTitle,QString authorId,QTcpServer *server,QTcpSocket *socket,QWidget *parent):
+PostView::PostView(int index, int postId, int plateId,QString postContent, QString postTitle,QString authorId,QTcpSocket *socket,QWidget *parent):
     QDialog(parent),postId(postId),plateId(plateId),postContent(postContent),
     postTitle(postTitle),ui(new Ui::post),authorId(authorId),index(index),
-    server(server),socket(socket)
+    socket(socket)
 {
-    //初始化网络连接
-    connect(socket,SIGNAL(readyRead()),this,SLOT(receiveData()));
-
-    perDataSize = 64*1024;
-    bytesWrite = 0;
-    bytesWritten = 0;
-    bytesRecived = 0;
     //初始化帖子界面
     ui->setupUi(this);
     this->setWindowTitle(postTitle);
@@ -60,7 +63,6 @@ PostView::PostView(int index, int postId, int plateId,QString postContent, QStri
     Init_View();
 
 }
-
 
 void PostView::Init_View()
 {
@@ -106,22 +108,6 @@ void PostView::sendData(QString message)
     socket->write(message.toUtf8());
 }
 
-void PostView::receiveData()
-{
-    QString message = socket->readAll();
-    QStringList segs = message.split("|");
-    int op = segs[0].toInt();
-    segs.removeOne(segs.front());
-    if(op==op_addcomment)
-    {
-        AddComment(segs[0],segs[1],segs[2],segs[3],segs[4].toInt());
-    }
-    else if(op==op_delcomment)
-    {
-        DelComment(segs[0]);
-    }
-}
-
 void PostView::AddComment(QString commentId, QString content, QString authorId, QString authorName, int postId1)//新增评论
 {
     Comment *comment = new Comment(commentId,content,authorId,authorName,postId1);
@@ -131,16 +117,10 @@ void PostView::AddComment(QString commentId, QString content, QString authorId, 
     ui->commentGroup->setCellWidget(0,1,comment->ContentView());
     if(comment->AuthorId()==clients[index]->ID())
     {
-        qDebug()<<"add comment"<<content<<endl;
         ui->commentGroup->setCellWidget(0,2,comment->DelButton());
         connect(comment->DelButton(),SIGNAL(clicked(bool)),this,SLOT(on_del_comment()));
     }
 
-}
-
-void PostView::disconnectServer()
-{
-    socket->close();
 }
 
 void PostView::on_add_clicked(bool checked)//打开评论发布界面
@@ -158,7 +138,8 @@ void PostView::on_add_clicked(bool checked)//打开评论发布界面
 
         QString message = QString::number(op_addcomment) + "|" +id + "|"+
                 c_content + "|" + clients[index]->ID() +"|" +
-                clients[index]->Name() + "|" + QString::number(postId);
+                clients[index]->Name() + "|" + QString::number(postId)+
+                "|" + QString::number(plateId);
         sendData(message);
     }
 }
@@ -201,7 +182,7 @@ void PostView::DelPost()//删除帖子
     QString message = QString::number(op_delpost)+"|";
     if(this->commentGroup.size()==0&&this->authorId==clients[index]->ID())
     {
-        message = message + QString::number(postId) + "|" + clients[index]->ID();
+        message = message + QString::number(postId) + "|" + clients[index]->ID() + "|" +QString::number(plateId);
         sendData(message);
         done(2);
         return;

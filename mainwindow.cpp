@@ -91,7 +91,7 @@ void MainWindow::DelPost(QStringList segs)
         exit(0);
     }
 
-    QString str = str_data_time+"comment "+postId+" is deleted by user " + userId;
+    QString str = str_data_time+"post "+postId+" is deleted by user " + userId;
     ui->serverDisplay->append(str);
 }
 
@@ -193,6 +193,12 @@ void MainWindow::acceptConnection()
 {
     socketgroup.push_back(server->nextPendingConnection());
     connect(socketgroup[socketgroup.size()-1],SIGNAL(readyRead()),this,SLOT(receiveData()));
+    connect(socketgroup[socketgroup.size()-1],SIGNAL(disconnected()),this,SLOT(DelSocket()));
+    qDebug()<<"socket status:"<<endl;
+    for(int i=0;i<socketgroup.size();i++)
+    {
+        qDebug()<<socketgroup[i]->state()<<endl;
+    }
 }
 
 void MainWindow::sendMessage(QString message)
@@ -209,6 +215,7 @@ void MainWindow::receiveData()
     {
         QString message = socketgroup[i]->readAll();
         if(message=="")continue;
+        qDebug()<<"server:"<<message<<endl;
         QStringList segs = message.split("|");
         int op = segs[0].toInt();
         segs.removeOne(segs.front());
@@ -244,4 +251,21 @@ void MainWindow::receiveData()
 void MainWindow::displayError(QAbstractSocket::SocketError socketError)
 {
 
+}
+
+void MainWindow::DelSocket()
+{
+    for(vector<QTcpSocket*>::iterator it=socketgroup.begin();it!=socketgroup.end();)
+    {
+        QTcpSocket *socket = *it;
+        if(socket->state()==QTcpSocket::UnconnectedState)
+        {
+            it = socketgroup.erase(it);
+        }
+        else
+        {
+            it++;
+        }
+    }
+    qDebug()<<"socket status:"<<socketgroup.size()<<endl;
 }
