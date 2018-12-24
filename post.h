@@ -40,8 +40,9 @@ public:
     QString AuthorId()const{return authorId;}
     int ID()const{return id;}
     int PlateId()const{return plateId;}
-    int Show(int index,QTcpServer *server,QTcpSocket *socket);
+    int Show(int index,QTcpSocket *socket);
     void AddComment(QString commentId, QString content, QString authorId, QString authorName, int postId1);
+    void DelComment(QString commentId);
 };
 
 ////////////////////////////////PostView////////////////////////////////////////
@@ -56,31 +57,20 @@ private:
     QPushButton *delPost;
     vector<Comment*>commentGroup;
     QTcpSocket *socket;
-    QTcpServer *server;
-    qint64 bytesWritten;
-    qint64 bytesWrite;
-    qint64 bytesRecived;
-    qint64 perDataSize;
-    QByteArray inBlock;
-    QByteArray outBlock;
-
 public:
-    PostView(int index, int postId, int plateId,QString postContent,QString postTitle,QString authorId,QTcpServer *server,QTcpSocket *socket,QWidget *parent=0);
+    PostView(int index, int postId, int plateId,QString postContent,QString postTitle,QString authorId,QTcpSocket *socket,QWidget *parent=0);
     void Init_View();
     void newConnect();
+    void sendData(QString message);
     void AddComment(QString commentId, QString content, QString authorId,QString authorName, int postId);
+    void DelComment(QString commentId);
     int ComentSize(){return ui->commentGroup->rowCount();}
     friend vector<Comment*>& operator<<(vector<Comment*>& group, QString op);
 
 private slots:
     void on_add_clicked(bool checked);
-    void DelPost();
     void on_del_comment();
-    void DelComment(QString commentId);
-    void disconnectServer();
-    void sendData(QString message);
-    void receiveData();
-
+    void DelPost();
 };
 
 ////////////////////////////////PubComment////////////////////////////////////////

@@ -10,9 +10,9 @@ Plate::Plate(int id, QString title,QWidget *parent):
     this->setStyleSheet("background-color: rgb(196, 226, 216);");
 }
 
-void Plate::Show(int index,QTcpServer *server,QTcpSocket *socket)
+void Plate::Show(int index,QTcpSocket *socket)
 {
-    this->plateview = new PlateView(index,title,id,server,socket);
+    this->plateview = new PlateView(index,title,id,socket);
     plateview->show();
 }
 
@@ -21,18 +21,32 @@ int Plate::Id()
     return id;
 }
 
+void Plate::AddPost(QStringList message)
+{
+    plateview->AddPost(new Post(message[0].toInt(),message[4].toInt(),message[1],message[2],message[3]));
+}
+
+void Plate::DelPost(QStringList message)
+{
+    plateview->DeletePost(message[0].toInt());
+}
+
+void Plate::AddComment(QStringList message)
+{
+    plateview->AddComment(message);
+}
+
+void Plate::DelComment(QString commentId)
+{
+    plateview->DelComment(commentId);
+}
+
 //////////////////////PlateView/////////////////////
-PlateView::PlateView(int index,QString title,int id, QTcpServer *server, QTcpSocket *socket, QWidget *parent):
+PlateView::PlateView(int index,QString title,int id, QTcpSocket *socket, QWidget *parent):
     QDialog(parent),title(title),plateId(id),index(index),
-    server(server),socket(socket),
+    socket(socket),
     ui(new Ui::Plate)
 {
-    //初始化网络连接
-    connect(socket,SIGNAL(readyRead()),this,SLOT(receiveData()));
-    perDataSize = 64*1024;
-    bytesWrite = 0;
-    bytesWritten = 0;
-    bytesRecived = 0;
     //初始化窗口信息
     ui->setupUi(this);
     this->setWindowTitle(title);
@@ -72,28 +86,12 @@ void PlateView::sendData(QString message)
     socket->write(message.toUtf8());
 }
 
-void PlateView::receiveData()
-{
-    QString message = socket->readAll();
-    QStringList segs = message.split("|");
-    int op = segs[0].toInt();
-    segs.removeOne(segs.front());
-    if(op==op_addpost)
-    {
-        Add(new Post(segs[0].toInt(),segs[4].toInt(),segs[1],segs[2],segs[3]));
-    }
-    else if(op==op_delpost)
-    {
-        DeletePost(segs[0].toInt());
-    }
-}
-
 void PlateView::disconnectServer()
 {
     qDebug()<<"disconnectServer"<<endl;
 }
 
-void PlateView::Add(Post *post)//插入帖子
+void PlateView::AddPost(Post *post)//插入帖子
 {
     postgroup.insert(postgroup.begin(),post);
     ui->postGroup->insertRow(0);
@@ -127,6 +125,30 @@ void PlateView::DeletePost(int postId)//删除帖子
 
 }
 
+void PlateView::AddComment(QStringList message)
+{
+    int postId = message[4].toInt();
+    for(int i=0;i<postgroup.size();i++)
+    {
+        if(postgroup[i]->ID()==postId)
+        {
+            postgroup[i]->AddComment(message[0],message[1],message[2],message[3],postId);
+        }
+    }
+}
+
+void PlateView::DelComment(QString commentId)
+{
+    int postId = commentId.mid(0,commentId.lastIndexOf('_')-2).toInt();
+    for(int i=0;i<postgroup.size();i++)
+    {
+        if(postgroup[i]->ID()==postId)
+        {
+            postgroup[i]->DelComment(commentId);
+        }
+    }
+}
+
 void PlateView::on_pub_post_clicked(bool checked)//打开帖子发布窗口
 {
     if(clients[index]->Type()==ANONYMOUS)
@@ -152,14 +174,7 @@ void PlateView::on_pub_post_clicked(bool checked)//打开帖子发布窗口
 void PlateView::postDetail()//打开帖子界面
 {
     Post *post = qobject_cast<Post *>(sender());
-    int postId = post->Show(index,server,socket);
-
-    if(postId)
-    {
-        QString message = QString::number(op_delpost);
-        message = message + "|" + QString::number(postId) + "|" + clients[index]->ID();
-        sendData(message);
-    }
+    int postId = post->Show(index,socket);
 }
 
 vector<Post*>& operator<<(vector<Post*>& group, QString op)//重载从数据库中导入所有数据
